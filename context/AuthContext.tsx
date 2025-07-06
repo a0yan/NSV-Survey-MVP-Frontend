@@ -1,4 +1,3 @@
-import { API_URL } from '@env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
@@ -25,7 +24,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const login = async (email: string, password: string) => {
-    const metaRes = await fetch(`${API_URL}/nsv/auth/login`, {
+    const metaRes = await fetch(`${process.env.API_URL}/nsv/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username: email, password }),
