@@ -1,4 +1,5 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, Pressable, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { twMerge } from 'tailwind-merge';
@@ -22,6 +23,7 @@ const LoginScreen = () => {
       setLoading(false);
       if (username && password) {
         Alert.alert('Login Successful', `Welcome, ${role}!`);
+        router.replace('/(dashboard)/SelectProject'); // <-- navigate to SelectProject tab
       } else {
         Alert.alert('Login Failed', 'Please enter username and password');
       }
