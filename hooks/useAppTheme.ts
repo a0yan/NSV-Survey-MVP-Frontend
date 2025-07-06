@@ -1,7 +1,7 @@
 import { useColorScheme } from "react-native";
 import { colors } from '../constants/appColors';
 
-export function useAppThemeClass() {
+export function useAppTheme() {
   const colorScheme = useColorScheme() || 'light';
 
   return (key: keyof typeof colors) => {

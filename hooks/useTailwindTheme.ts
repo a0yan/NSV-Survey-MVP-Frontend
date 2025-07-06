@@ -16,7 +16,7 @@ export const themeClassMap = {
   // Add more as needed
 };
 
-export function useTailwindThemeClass() {
+export function useTailwindTheme() {
   const colorScheme = useColorScheme() || 'light';
 
   return (key: keyof typeof themeClassMap) => {
