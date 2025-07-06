@@ -1,5 +1,6 @@
 import { useAuth } from '@/context/AuthContext';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, Pressable, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { twMerge } from 'tailwind-merge';
@@ -21,6 +22,11 @@ const LoginScreen = () => {
 
   const handleLogin = async () => {
     setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      if (username && password) {
+        Alert.alert('Login Successful', `Welcome, ${role}!`);
+        router.replace('/(dashboard)/SelectProject'); // <-- navigate to SelectProject tab
     try {
       const response = await login(username, password);
       if (response.success) {
