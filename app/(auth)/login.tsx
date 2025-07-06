@@ -1,70 +1,114 @@
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import React, { useState } from 'react';
-import { Alert, Button, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, Pressable, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { twMerge } from 'tailwind-merge';
+
+const roles = [
+  { label: 'Surveyor', icon: 'account-circle-outline' },
+  { label: 'Supervisor', icon: 'account-supervisor-outline' },
+  { label: 'Admin', icon: 'account-tie-outline' },
+];
 
 const LoginScreen = () => {
-  const [email, setEmail] = useState('');
+  const [role, setRole] = useState('Surveyor');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = () => {
     setLoading(true);
-    // Replace with your authentication logic
     setTimeout(() => {
       setLoading(false);
-      if (email === 'test@example.com' && password === 'password') {
-        Alert.alert('Login Successful', 'Welcome!');
+      if (username && password) {
+        Alert.alert('Login Successful', `Welcome, ${role}!`);
       } else {
-        Alert.alert('Login Failed', 'Invalid credentials');
+        Alert.alert('Login Failed', 'Please enter username and password');
       }
     }, 1000);
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Login</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-        keyboardType="email-address"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-      <Button title={loading ? 'Logging in...' : 'Login'} onPress={handleLogin} disabled={loading} />
-    </View>
+    <KeyboardAvoidingView
+      className="flex-1 bg-[#f4f8ff]"
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <View className="flex-1 items-center justify-center bg-[#f4f8ff] p-4">
+        <View className="items-center mb-8">
+          <View className="bg-indigo-100 rounded-2xl w-16 h-16 items-center justify-center mb-3">
+            <MaterialCommunityIcons name="road-variant" size={40} color="#2563eb" />
+          </View>
+          <Text className="text-2xl font-bold text-[#22223b] mb-0.5">Highway Survey</Text>
+          <Text className="text-base text-gray-500 mb-2">Field Data Collection System</Text>
+        </View>
+        <View className="bg-white rounded-2xl p-6 w-[340px] shadow-md items-stretch">
+          <Text className="text-xl font-bold text-[#22223b] mb-1 text-center">Welcome Back</Text>
+          <Text className="text-base text-gray-500 mb-4 text-center">Sign in to continue your survey work</Text>
+          <Text className="text-sm text-[#22223b] mb-1 mt-2 font-medium">Select Role</Text>
+          <View className="flex-row justify-between mb-3 gap-2">
+            {roles.map((r) => (
+              <Pressable
+                key={r.label}
+                className={twMerge(
+                  'flex-1 flex-row items-center justify-center bg-gray-100 rounded-lg p-2.5 mx-0.5 border',
+                  role === r.label ? 'bg-indigo-100 border-indigo-600' : 'border-gray-100'
+                )}
+                onPress={() => setRole(r.label)}
+              >
+                <MaterialCommunityIcons
+                  name={r.icon as any}
+                  size={20}
+                  color={role === r.label ? '#2563eb' : '#6b7280'}
+                  style={{ marginBottom: 2 }}
+                />
+                <Text className={twMerge('text-[10px] text-gray-500 ml-1 font-medium', role === r.label && 'text-indigo-600 font-bold')}>{r.label}</Text>
+              </Pressable>
+            ))}
+          </View>
+          <Text className="text-sm text-[#22223b] mb-1 mt-2 font-medium">Username</Text>
+          <View className="flex-row items-center bg-gray-100 rounded-lg border border-gray-200 mb-3 px-2 h-12">
+            <Ionicons name="person-outline" size={20} color="#6b7280" style={{ marginRight: 8 }} />
+            <TextInput
+              className="flex-1 text-base text-[#22223b]"
+              placeholder="Enter your username"
+              value={username}
+              onChangeText={setUsername}
+              autoCapitalize="none"
+              placeholderTextColor="#9ca3af"
+            />
+          </View>
+          <Text className="text-sm text-[#22223b] mb-1 mt-2 font-medium">Password</Text>
+          <View className="flex-row items-center bg-gray-100 rounded-lg border border-gray-200 mb-3 px-2 h-12">
+            <Ionicons name="lock-closed-outline" size={20} color="#6b7280" style={{ marginRight: 8 }} />
+            <TextInput
+              className="flex-1 text-base text-[#22223b]"
+              placeholder="Enter your password"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPassword}
+              autoCapitalize="none"
+              placeholderTextColor="#9ca3af"
+            />
+            <TouchableOpacity onPress={() => setShowPassword((v) => !v)}>
+              <Ionicons name={showPassword ? 'eye-off-outline' : 'eye-outline'} size={20} color="#6b7280" />
+            </TouchableOpacity>
+          </View>
+          <TouchableOpacity className="self-end mb-2.5" onPress={() => Alert.alert('Forgot Password?')}>
+            <Text className="text-indigo-600 text-sm font-medium">Forgot Password?</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            className="bg-indigo-600 rounded-lg py-3 items-center mt-2"
+            onPress={handleLogin}
+            disabled={loading}
+          >
+            <Text className="text-white text-base font-bold tracking-wide">{loading ? 'Logging in...' : 'Login'}</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </KeyboardAvoidingView>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 16,
-    backgroundColor: '#fff',
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    marginBottom: 24,
-  },
-  input: {
-    width: '100%',
-    height: 48,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    marginBottom: 16,
-    fontSize: 16,
-  },
-});
+
 
 export default LoginScreen;
