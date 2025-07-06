@@ -1,14 +1,25 @@
-import { View, type ViewProps } from 'react-native';
+import { useTailwindTheme } from '@/hooks/useTailwindThemeColors';
+import React from 'react';
+import { View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useAppTheme } from '@/hooks/useAppTheme';
-
-export type ThemedViewProps = ViewProps & {
-  lightColor?: string;
-  darkColor?: string;
-};
-
-export function ThemedView({ style, lightColor, darkColor, ...otherProps }: ThemedViewProps) {
-  const backgroundColor = useAppTheme()("background");
-
-  return <View style={[{ backgroundColor }, style]} {...otherProps} />;
+export const ThemedView = ({safe=false,...props}) => {
+  const tailwindThemeClass=useTailwindTheme()('background');
+  if(!safe){
+    return (
+      <View className={`${tailwindThemeClass}`} {...props}>
+      </View>
+    )
+  }
+  const insets=useSafeAreaInsets()
+  return(
+    <View className={`${tailwindThemeClass}`} {...props}
+    style={[{
+      paddingTop:insets.top,
+      paddingBottom:insets.bottom
+      }]}>
+    </View>
+  )
 }
+
+export default ThemedView
