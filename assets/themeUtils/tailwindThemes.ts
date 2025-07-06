@@ -1,7 +1,6 @@
-// themeClasses.ts
 import { useColorScheme } from 'react-native';
 
-const themeClassMap = {
+export const themeClassMap = {
   text: {
     light: 'text-text-light',
     dark: 'text-text-dark',
@@ -17,7 +16,7 @@ const themeClassMap = {
   // Add more as needed
 };
 
-export function useThemeClass() {
+export function useTailwindThemeClass() {
   const colorScheme = useColorScheme() || 'light';
 
   return (key: keyof typeof themeClassMap) => {
