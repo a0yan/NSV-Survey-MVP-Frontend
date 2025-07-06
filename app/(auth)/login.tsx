@@ -1,7 +1,9 @@
+import { useAuth } from '@/context/AuthContext';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, Pressable, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { twMerge } from 'tailwind-merge';
+
 
 const roles = [
   { label: 'Surveyor', icon: 'account-circle-outline' },
@@ -15,17 +17,24 @@ const LoginScreen = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+    const { login } = useAuth();
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      if (username && password) {
-        Alert.alert('Login Successful', `Welcome, ${role}!`);
+    try {
+      const response = await login(username, password);
+      if (response.success) {
+        Alert.alert('Login Successful', 'Welcome back!');
+        //TODO: Navigate to the main app screen
       } else {
-        Alert.alert('Login Failed', 'Please enter username and password');
+        Alert.alert('Login Failed', response.msg || 'Please check your credentials and try again.');
       }
-    }, 1000);
+      setLoading(false);
+     
+    } catch (error) {
+      setLoading(false);
+      Alert.alert('Login Failed', 'An error occurred. Please try again.');
+    }
   };
 
   return (
