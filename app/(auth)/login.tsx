@@ -20,28 +20,24 @@ const LoginScreen = () => {
   const [showPassword, setShowPassword] = useState(false);
     const { login } = useAuth();
 
-  const handleLogin = async () => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      if (username && password) {
-        Alert.alert('Login Successful', `Welcome, ${role}!`);
-        router.replace('/(dashboard)/SelectProject'); // <-- navigate to SelectProject tab
+ const handleLogin = async () => {
+  setLoading(true);
+  if (username && password) {
     try {
       const response = await login(username, password);
       if (response.success) {
-        Alert.alert('Login Successful', 'Welcome back!');
-        //TODO: Navigate to the main app screen
+        router.replace('/(dashboard)/SelectProject');
       } else {
         Alert.alert('Login Failed', response.msg || 'Please check your credentials and try again.');
       }
-      setLoading(false);
-     
     } catch (error) {
-      setLoading(false);
       Alert.alert('Login Failed', 'An error occurred. Please try again.');
     }
-  };
+  } else {
+    Alert.alert('Login Failed', 'Please enter username and password');
+  }
+  setLoading(false);
+};
 
   return (
     <KeyboardAvoidingView
