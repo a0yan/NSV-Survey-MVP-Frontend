@@ -1,5 +1,5 @@
-import { Tabs } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
+import { Tabs } from 'expo-router'
 import { View } from 'react-native'
 
 export default function DashboardLayout() {
@@ -42,9 +42,9 @@ export default function DashboardLayout() {
           }}
         />
         <Tabs.Screen
-          name="ViewReport"
+          name="LiveSurvey"
           options={{
-            title: 'View Report',
+            title: 'Live Survey',
             headerShown: false
           }}
         />

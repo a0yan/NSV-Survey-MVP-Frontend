@@ -1,4 +1,3 @@
-import { API_URL } from '@env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
@@ -25,23 +24,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const login = async (email: string, password: string) => {
-    const metaRes = await fetch(`${API_URL}/nsv/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: email, password }),
-    });
-    const jsonRes = await metaRes.json();
-    const data=jsonRes.data;
+    // const metaRes = await fetch(`${API_URL}/nsv/auth/login`, {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify({ username: email, password }),
+    // });
+    // const jsonRes = await metaRes.json();
+    // const data=jsonRes.data;
 
-    if(data==null){
-        return {"success":false,"msg":"Connection Error"};
-    }
-    if (!data || !data.user || !data.token||data.loggedIn===false) {
-      return{"success":false,"msg":data.msg};
-    }
-    setUser(data.user_id);
-    setToken(data.token);
-    await AsyncStorage.setItem('token', data.token);
+    // if(data==null){
+    //     return {"success":false,"msg":"Connection Error"};
+    // }
+    // if (!data || !data.user || !data.token||data.loggedIn===false) {
+    //   return{"success":false,"msg":data.msg};
+    // }
+    // setUser(data.user_id);
+    // setToken(data.token);
+    // await AsyncStorage.setItem('token', data.token);
     return {"success":true,"msg":"Login Successful"};
   };
 
