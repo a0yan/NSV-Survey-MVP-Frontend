@@ -16,15 +16,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<any>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean|null>(null);
-
+  
   useEffect(() => {
     const loadToken = async () => {
-      const saved = await AsyncStorage.getItem('token');
-      setIsAuthenticated(!!saved)
-      if (saved) setToken(saved);
-    };
-    loadToken();
+    const saved = await AsyncStorage.getItem('token');
+    const savedUser = await AsyncStorage.getItem('user');
+    if (saved) {
+      setToken(saved);
+      setIsAuthenticated(true);
+    } else {
+      setIsAuthenticated(false);
+    }
+
+    if (savedUser) {
+      try {
+        setUser(JSON.parse(savedUser));
+      } catch (err) {
+        console.error("Error parsing user from storage", err);
+      }
+    }
+  };
+  loadToken();
   }, []);
+
 
   const login = async (email: string, password: string) => {
     const metaRes = await fetch('https://nsv-survey-mvp-backend-1.onrender.com/nsv/auth/login', {
@@ -37,16 +51,30 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const data=jsonRes['data'];
     setIsAuthenticated(false);
     if(data==null){
-        return {"success":false,"msg":"Connection Error"};
+        return {"success": false,"msg": "Connection Error!"};
     }
     if (!data || !data.user_id || !data.token||data.loggedIn==="false") {
       return{"success":false,"msg":data.msg};
     }
-    setUser(data.user_id);
+    setUser({
+      user_id: data.user_id,
+      name: data.name,
+      role: data.role,
+      email: data.email,
+      phone: data.phone
+    });
     setToken(data.token);
     setIsAuthenticated(true);
+    
     await AsyncStorage.setItem('token', data.token);
-    return {"success":true,"msg":"Login Successful"};
+    await AsyncStorage.setItem('user', JSON.stringify({
+      user_id: data.user_id,
+      name: data.name,
+      role: data.role,
+      email: data.email,
+      phone: data.phone
+    }));
+    return {"success": true,"msg": "Login Successful"};
   };
 
   const register = async (email: string, password: string) => {
@@ -67,6 +95,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setToken(null);
     setIsAuthenticated(false);
     await AsyncStorage.removeItem('token');
+    await AsyncStorage.removeItem('user');
   };
 
   return (
