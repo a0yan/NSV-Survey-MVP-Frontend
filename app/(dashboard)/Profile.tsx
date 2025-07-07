@@ -12,18 +12,22 @@
 
 // export default Profile
 
+import { useAuth } from '@/context/AuthContext';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 
-const user = {
-  username: 'john_doe',
-  role: 'Surveyor',
-};
+// const user = {
+//   username: 'john_doe',
+//   role: 'Surveyor',
+// };
 
 function Profile() {
-  const handleLogout = () => {
+  const { user, logout } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
     router.replace('/(auth)/login');
   };
 
@@ -41,14 +45,18 @@ function Profile() {
           <Ionicons name="person-circle-outline" size={28} color="#2563eb" style={{ marginRight: 10 }} />
           <View>
             <Text className="text-base text-gray-500">Username</Text>
-            <Text className="text-lg font-bold text-[#22223b]">{user.username}</Text>
+            <Text className="text-lg font-bold text-[#22223b]">
+              {user?.name || 'N/A'}
+            </Text>
           </View>
         </View>
         <View className="flex-row items-center mb-6">
           <MaterialCommunityIcons name="account-alert-outline" size={24} color="#2563eb" style={{ marginRight: 10 }} />
           <View>
             <Text className="text-base text-gray-500">Role</Text>
-            <Text className="text-lg font-bold text-[#22223b]">{user.role}</Text>
+            <Text className="text-lg font-bold text-[#22223b]">
+              {user?.role || 'N/A'}
+            </Text>
           </View>
         </View>
         <TouchableOpacity

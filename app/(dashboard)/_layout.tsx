@@ -1,9 +1,11 @@
 import { Ionicons } from '@expo/vector-icons'
 import { Tabs } from 'expo-router'
 import { View } from 'react-native'
+import UserOnly from '@/components/auth/UserOnly'
 
 export default function DashboardLayout() {
   return (
+    <UserOnly>
     <View style={{ flex: 1, backgroundColor: '#f4f8ff' }}>
       <Tabs
         initialRouteName="SelectProject"
@@ -57,5 +59,6 @@ export default function DashboardLayout() {
         />
       </Tabs>
     </View>
+    </UserOnly>
   )
 }
