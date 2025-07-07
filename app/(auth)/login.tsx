@@ -31,9 +31,11 @@ const LoginScreen = () => {
         Alert.alert('Login Failed', response.msg || 'Please check your credentials and try again.');
       }
     } catch (error) {
+          console.error(error);
       Alert.alert('Login Failed', 'An error occurred. Please try again.');
     }
   } else {
+
     Alert.alert('Login Failed', 'Please enter username and password');
   }
   setLoading(false);

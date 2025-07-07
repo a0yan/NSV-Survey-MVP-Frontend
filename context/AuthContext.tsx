@@ -27,18 +27,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const login = async (email: string, password: string) => {
-    const metaRes = await fetch(`${process.env.API_URL}/nsv/auth/login`, {
+    const metaRes = await fetch('https://nsv-survey-mvp-backend-1.onrender.com/nsv/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username: email, password }),
     });
     const jsonRes = await metaRes.json();
-    const data=jsonRes.data;
+    console.log(`Login response: ${JSON.stringify(jsonRes)}`);
+    const data=jsonRes['data'];
     setIsAuthenticated(false);
     if(data==null){
         return {"success":false,"msg":"Connection Error"};
     }
-    if (!data || !data.user || !data.token||data.loggedIn===false) {
+    if (!data || !data.user_id || !data.token||data.loggedIn==="false") {
       return{"success":false,"msg":data.msg};
     }
     setUser(data.user_id);

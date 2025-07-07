@@ -2,7 +2,7 @@ import axios from 'axios';
 
 export const createApiClient = (token: string | null) => {
   const api = axios.create({
-    baseURL: process.env.API_URL,
+    baseURL: "https://nsv-survey-mvp-backend-1.onrender.com",
     headers: {
       'Content-Type': 'application/json',
     },
