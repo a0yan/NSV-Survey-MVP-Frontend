@@ -18,11 +18,6 @@ import { router } from 'expo-router';
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 
-// const user = {
-//   username: 'john_doe',
-//   role: 'Surveyor',
-// };
-
 function Profile() {
   const { user, logout } = useAuth();
 
