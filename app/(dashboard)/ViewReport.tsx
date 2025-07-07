@@ -1,7 +1,7 @@
 // app/dashboard/ViewReport.tsx
 
+import { useApi } from '@/hooks/useApi';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -27,21 +27,18 @@ interface InspectionData {
 const ViewReport = () => {
   const [inspections, setInspections] = useState<InspectionData[]>([]);
   const [loading, setLoading] = useState(true);
+  const axios=useApi()
 
   // You can replace this with token from secure storage/context
-  const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMDFKWksySk5UUlQ0V0hORkc3TVMwU0tZTlYiLCJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNzUxOTE4OTMyfQ.ARfFH8G1NU1usFy-_UVateh6b6VhsjQUZgaxjuBai5g';
   const project_id = '7b094a86-7da3-4771-b67f-a42f1c0f8d13';
 
   useEffect(() => {
     const fetchInspections = async () => {
       try {
-        const response = await axios.get(
-          'https://nsv-survey-mvp-backend-1.onrender.com/nsv/inspections/prev-inspection-data',
+        const response =  await axios.get(
+          '/nsv/inspections/prev-inspection-data',
           {
             params: { project_id: project_id },
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
           }
         );
         setInspections(response.data.data);

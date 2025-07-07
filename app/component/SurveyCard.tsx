@@ -48,16 +48,19 @@ const formattedDate = new Date(Number(inspection_date)).toLocaleString(undefined
       {/* Info Rows */}
       <View style={styles.infoRow}>
         <MaterialIcons name="event" size={16} color="#4b5563" />
+        <Text style={styles.label}>Date:</Text>
         <Text style={styles.infoText}>{formattedDate}</Text>
       </View>
 
       <View style={styles.infoRow}>
-        <MaterialIcons name="person" size={16} color="#4b5563" />
+        <MaterialIcons name="person" size={20} color="#4b5563" />
+        <Text style={styles.label}>PR</Text>
         <Text style={styles.infoText}>{inspection_by}</Text>
       </View>
 
       <View style={styles.infoRow}>
         <MaterialIcons name="timer" size={16} color="#4b5563" />
+        <Text style={styles.label}>Duration</Text>
         <Text style={styles.infoText}>{inspection_duration}</Text>
       </View>
 
@@ -113,6 +116,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 6,
     gap: 6,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#374151',
+    flex: 1,
   },
   infoText: {
     fontSize: 14,
