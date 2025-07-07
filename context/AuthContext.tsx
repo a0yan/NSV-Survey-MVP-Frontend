@@ -57,18 +57,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       return{"success":false,"msg":data.msg};
     }
     setUser({
-      user_id: data.Data.user_id,
-      name: data.Data.name,
-      role: data.Data.role,
+      user_id: data.user_id,
+      name: data.name,
+      role: data.role,
+      email: data.email,
+      phone: data.phone
     });
-    setToken(data.Data.token);
+    setToken(data.token);
     setIsAuthenticated(true);
     
-    await AsyncStorage.setItem('token', data.Data.token);
+    await AsyncStorage.setItem('token', data.token);
     await AsyncStorage.setItem('user', JSON.stringify({
-      user_id: data.Data.user_id,
-      name: data.Data.name,
-      role: data.Data.role,
+      user_id: data.user_id,
+      name: data.name,
+      role: data.role,
+      email: data.email,
+      phone: data.phone
     }));
     return {"success": true,"msg": "Login Successful"};
   };
@@ -91,6 +95,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setToken(null);
     setIsAuthenticated(false);
     await AsyncStorage.removeItem('token');
+    await AsyncStorage.removeItem('user');
   };
 
   return (

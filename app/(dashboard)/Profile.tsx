@@ -50,12 +50,32 @@ function Profile() {
             </Text>
           </View>
         </View>
-        <View className="flex-row items-center mb-6">
-          <MaterialCommunityIcons name="account-alert-outline" size={24} color="#2563eb" style={{ marginRight: 10 }} />
+        <View className="flex-row items-center mb-4">
+          <MaterialCommunityIcons name="email-outline" size={28} color="#2563eb" style={{ marginRight: 10 }} />
+          <View>
+            <Text className="text-base text-gray-500">Email</Text>
+            <Text className="text-lg font-bold text-[#22223b]">
+              {user?.email || 'N/A'}
+            </Text>
+          </View>
+        </View>
+        <View className="flex-row items-center mb-4">
+          <MaterialCommunityIcons name="account" size={28} color="#2563eb" style={{ marginRight: 10 }} />
           <View>
             <Text className="text-base text-gray-500">Role</Text>
             <Text className="text-lg font-bold text-[#22223b]">
               {user?.role || 'N/A'}
+            </Text>
+          </View>
+        </View>
+        <View className="flex-row items-center mb-6">
+          <MaterialCommunityIcons name="phone" size={28} color="#2563eb" style={{ marginRight: 10 }} />
+          <View>
+            <Text className="text-base text-gray-500">Phone</Text>
+            <Text className="text-lg font-bold text-[#22223b]">
+              {user?.phone
+              ? user.phone.replace(/^(\+\d{2})(\d{10})$/, '$1-$2')
+              : 'N/A'}
             </Text>
           </View>
         </View>
