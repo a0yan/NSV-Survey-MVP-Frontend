@@ -8,4 +8,5 @@ export interface DistressData {
   crack_area_pct: string;
   ravelling_area_pct: string;
   distance_meters: number;
+  side:string
 }
