@@ -2,7 +2,7 @@ import axios from 'axios';
 
 export const createApiClient = (token: string | null) => {
   const api = axios.create({
-    baseURL: process.env.API_URL,
+    baseURL: process.env.EXPO_PUBLIC_API_URL,
     headers: {
       'Content-Type': 'application/json',
     },
