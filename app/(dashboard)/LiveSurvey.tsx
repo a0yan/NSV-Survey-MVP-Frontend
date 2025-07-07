@@ -1,34 +1,89 @@
+import Table, { TableColumn } from "@/components/ui/Table";
+import ToggleButton from "@/components/ui/Toggle";
 import { useApi } from "@/hooks/useApi";
 import useLiveLocation from "@/hooks/useLocation";
 import { DistressData } from "@/interface/DistressData";
 import { GeneralMetaResponse } from "@/interface/GeneraMetaResponse";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { AxiosResponse } from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
+  const baseKeys = [
+    { key: 'roughness_bi', label: 'Roughness' },
+    { key: 'rut_depth_mm', label: 'Rut Depth' },
+    { key: 'crack_area_pct', label: 'Crack Area' },
+    { key: 'ravelling_area_pct', label: 'Ravelling Area' },
+  ];
 export interface ChainageData {
   chainageStart: string;
   chainageEnd: string;
   }
+  type DistressRow = {
+  label: string;
+  [lane: string]: string | number | undefined; // L1, L2, R1, R2
+};
+export interface ActiveLaneResponse {
+  L: string[];
+  R: string[];
+}
+
+
 const LiveGPSSurveyScreen = () => {
   // Example state for live location and survey data
+  const [activeLanesMap, setActiveLanesMap] = useState<ActiveLaneResponse | null>(null);
+
   const liveLocation = useLiveLocation();
   const projectId = "1ee51074-afe0-4300-bb03-ea34afdee412"; // Replace with actual project ID if needed
   const axios = useApi();
   const [distressData, setDistressData] = useState<DistressData[]>([]);
   const [chainageData, setChainageData] = useState<ChainageData>({ chainageStart: "", chainageEnd: "" });
-  const [laneCodes, setLaneCodes] = useState<Set<string>>(new Set());
   const [location, setLocation] = useState({
     latitude: 0,
     longitude: 0,
     latitudeDelta: 0.005,
     longitudeDelta: 0.005,
   });
+  const [isLeft, setIsLeft] = useState(true); // State to track selected lane (left or right)
   const checkLocationLoaded = () => {
     let loaded = location === undefined || location === null || location.latitude === 0 ? false : true;
     return loaded;
   };
+const activeLanes = useMemo(() => {
+  const selectedLane = isLeft ? 'L' : 'R';
+  const lanes = activeLanesMap?.[selectedLane] || [];
+  return [...lanes].sort(); // make a copy to avoid mutating state
+}, [activeLanesMap, isLeft]);
+
+const filteredDistressData: DistressRow[] = useMemo(() => {
+  const laneMap = new Map<string, any>();
+  distressData.forEach((d) => {
+    laneMap.set(d.lane_code, d);
+  });
+
+  return baseKeys.map(({ key, label }) => {
+    const row: DistressRow = { label };
+    activeLanes.forEach((lane) => {
+      row[lane] = laneMap.get(lane)?.[key] ?? '--';
+    });
+    return row;
+  });
+}, [distressData, activeLanes]);
+
+const distressColumns: TableColumn<DistressRow>[] = useMemo(() => {
+  return [
+    { key: 'label', label: 'Distress Type' },
+    ...activeLanes.map((lane) => ({
+      key: lane,
+      label: lane,
+    })),
+  ];
+}, [activeLanes]);
+
+
+
+
+
   // Update location state when liveLocation changes
   useEffect(() => {
     if(!liveLocation) 
@@ -47,22 +102,49 @@ const LiveGPSSurveyScreen = () => {
       })
       .then((response: AxiosResponse<GeneralMetaResponse<DistressData[]>>) => {
         // console.log("Distress data sent successfully:", response.data.data);
-        setDistressData(response.data.data || []);
+  
+        setDistressData(response.data.data||[]);
         if(response.data.data.length > 0) {
           setChainageData({
             chainageStart: response.data.data[0].start_chainage_m.toString(),
             chainageEnd: response.data.data[0].end_chainage_m.toString(),
           });
         }
-        for(const distress of response.data.data) {
-          setLaneCodes((prev) => new Set(prev).add(distress.lane_code));
-        }
+
       })
       .catch((error) => {
         console.error(error.message);
       });
     
   }, [liveLocation]);
+
+  useEffect(() => {
+  if (!projectId) return;
+
+  axios
+  .get<GeneralMetaResponse<any>>(
+    `/nsv/master/lane_data`, // base endpoint
+    {
+      params: { project_id: projectId }, // query param
+    }
+  )
+  .then((res) => {
+    const laneMap=res.data.data.reduce((acc: ActiveLaneResponse, lane: any) => {
+      if (lane.side === 'L') {
+        acc.L.push(lane.lane_code);
+      } else {
+        acc.R.push(lane.lane_code);
+      }
+      return acc;
+    }, { L: [], R: [] });
+    setActiveLanesMap(laneMap);
+  })
+  .catch((err) => {
+    console.error("Failed to fetch active lanes:", err.message);
+  });
+;
+}, [projectId]);
+
 
 
 
@@ -149,7 +231,7 @@ const LiveGPSSurveyScreen = () => {
         </View>
       </View>
       {/* Survey Data Card */}
-      <View className="bg-gray-50 rounded-xl mx-4 mt-3 p-3">
+      {/* <View className="bg-gray-50 rounded-xl mx-4 mt-3 p-3">
         <View className="flex-row justify-between items-center mb-2">
           <Text className="font-medium text-gray-700">
             Auto-fetched Survey Data
@@ -187,28 +269,33 @@ const LiveGPSSurveyScreen = () => {
         </View>
         <Text className="text-xs text-gray-400 mt-1">LAST UPDATED</Text>
         <Text className="text-xs text-gray-500">{surveyData.lastUpdated}</Text>
+      </View> */}
+      {/* Toggle */}
+       <View>
+      <ToggleButton onToggle={(value) => setIsLeft(value)} />
+    </View>
+      {/* Distress Assessment Table Example */}
+      <View className="mx-4 mt-4 mb-2">
+        {activeLanes.length !== 0 ? (
+          <Table
+            title="Distress Assessment"
+            columns={distressColumns}
+            data={filteredDistressData}
+            rowKey={(_, idx) => idx}
+          />
+      ) : null}
       </View>
       {/* Recent Observations */}
-      <View className="bg-white rounded-xl mx-4 mt-3 p-3 border border-gray-100">
-        <Text className="font-medium text-gray-700 mb-2">
-          Recent Observations
-        </Text>
+      {/* <View className="bg-white rounded-xl mx-4 mt-3 p-3 border border-gray-100">
+        <Text className="font-medium text-gray-700 mb-2">Recent Observations</Text>
         {surveyData.observations.map((obs, idx) => (
           <View key={idx} className="flex-row items-center mb-1.5">
-            <MaterialCommunityIcons
-              name={obs.icon as any}
-              size={18}
-              color="#f59e42"
-            />
-            <Text className="ml-2 text-sm font-medium text-gray-700">
-              {obs.label}
-            </Text>
-            <Text className="ml-2 text-xs text-gray-400">
-              ({obs.chainage} • {obs.time})
-            </Text>
+            <MaterialCommunityIcons name={obs.icon as any} size={18} color="#f59e42" />
+            <Text className="ml-2 text-sm font-medium text-gray-700">{obs.label}</Text>
+            <Text className="ml-2 text-xs text-gray-400">({obs.chainage} • {obs.time})</Text>
           </View>
         ))}
-      </View>
+      </View> */}
       {/* Add New Observation Button */}
       <TouchableOpacity className="bg-green-600 rounded-lg mx-4 mt-4 py-3 items-center">
         <Text className="text-white text-base font-bold">
