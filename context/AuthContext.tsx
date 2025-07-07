@@ -27,24 +27,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const login = async (email: string, password: string) => {
-    const metaRes = await fetch(`${process.env.API_URL}/nsv/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: email, password }),
-    });
-    const jsonRes = await metaRes.json();
-    const data=jsonRes.data;
-    setIsAuthenticated(false);
-    if(data==null){
-        return {"success":false,"msg":"Connection Error"};
-    }
-    if (!data || !data.user || !data.token||data.loggedIn===false) {
-      return{"success":false,"msg":data.msg};
-    }
-    setUser(data.user_id);
-    setToken(data.token);
-    setIsAuthenticated(true);
-    await AsyncStorage.setItem('token', data.token);
+      // const metaRes = await fetch(`${process.env.API_URL}/nsv/auth/login`, {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({ username: email, password }),
+      // });
+      // const jsonRes = await metaRes.json();
+      // const data=jsonRes.data;
+      // setIsAuthenticated(false);
+      // if(data==null){
+      //     return {"success":false,"msg":"Connection Error"};
+      // }
+      // if (!data || !data.user || !data.token||data.loggedIn===false) {
+      //   return{"success":false,"msg":data.msg};
+      // }
+      // setUser(data.user_id);
+      // setToken(data.token);
+      // setIsAuthenticated(true);
+      // await AsyncStorage.setItem('token', data.token);
     return {"success":true,"msg":"Login Successful"};
   };
 
