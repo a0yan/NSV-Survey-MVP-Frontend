@@ -199,28 +199,72 @@ import { Picker } from '@react-native-picker/picker';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useProject } from '@/hooks/useProject';
-import { Project } from '@/context/ProjectContext';
+import { PIU, Project, RO } from '@/context/ProjectContext';
 import { useRouter } from 'expo-router';
+// import { fetchPIUs, fetchProjects, fetchROs } from '../api/project';
+import { useApi } from '@/hooks/useApi';
+import { GeneralMetaResponse } from '@/interface/GeneraMetaResponse';
+
 
 const SelectProject = () => {
+  const axios = useApi();
   const {
     ros,
     ro,
     setRo,
-    fetchROs,
+    // fetchROs,
     pius,
     piu,
     setPiu,
-    fetchPIUs,
+    // fetchPIUs,
     projects,
     project,
     selectProject,
-    fetchProjects,
+    // fetchProjects,
+    setROs,
+  setPIUs,
+  setProjects,
+  setLoading
   } = useProject();
 
-  const router = useRouter();
+  // const router = useRouter();
 
   // Fetch ROs on mount
+  const fetchROs = async () => {
+  try {
+    const res = await axios.get<any>("/nsv/master/ro-list");
+    console.log("Fetched ROs:", res);
+    setROs(res.data?.data ?? []);
+  } catch (error) {
+    console.error("Error fetching ROs:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
+  
+    const fetchPIUs = async(roId: string) =>{
+        try{
+            const res = await axios.get<GeneralMetaResponse<PIU[]>>(`/nsv/master/piu-list?ro_id=${roId}`);
+            setPIUs(res.data?.data ?? []);
+        }catch (error) {
+            console.error("Error fetching PIUs:", error);
+        }finally {
+            setLoading(false);
+        }
+      }
+
+    const fetchProjects = async (piuId: string) => {
+        try {
+          const res = await axios.get<GeneralMetaResponse<Project[]>>(`/nsv/master/project-list?piu_id=${piuId}`);
+          setProjects(res.data?.data ?? []);
+        } catch (error) {
+          console.error("Error fetching projects:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
   useEffect(() => {
     fetchROs();
   }, []);

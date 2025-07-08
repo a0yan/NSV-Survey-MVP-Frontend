@@ -7,7 +7,7 @@ import { ProjectProvider } from "@/context/ProjectContext";
 export default function DashboardLayout() {
   return (
     <UserOnly>
-      <ProjectProvider>
+      {/* <ProjectProvider> */}
         <View style={{ flex: 1, backgroundColor: "#f4f8ff" }}>
           <Tabs
             initialRouteName="SelectProject"
@@ -62,7 +62,7 @@ export default function DashboardLayout() {
             />
           </Tabs>
         </View>
-      </ProjectProvider>
+      {/* </ProjectProvider> */}
     </UserOnly>
   );
 }

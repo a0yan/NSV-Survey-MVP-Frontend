@@ -46,9 +46,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username: email, password }),
     });
+    console.log("metaRes: ",metaRes);
+    
     const jsonRes = await metaRes.json();
-    console.log(`Login response: ${JSON.stringify(jsonRes)}`);
+    console.log("metaRes: ",jsonRes);
+
     const data=jsonRes['data'];
+    console.log(`Login response: ${data}`);
+    
     setIsAuthenticated(false);
     if(data==null){
         return {"success": false,"msg": "Connection Error!"};

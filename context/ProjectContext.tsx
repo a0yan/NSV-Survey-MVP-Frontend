@@ -1,22 +1,27 @@
 import { useApi } from "@/hooks/useApi";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 import { createContext, useEffect, useState } from "react";
 
 type ProjectContextType = {
   project: Project | null;
-  ros: any[];
-  ro: RO | null;
-  pius: any[];
-  piu: PIU | null;
-    setPiu: (piu: PIU | null) => void;
-  projects: Project[];
   setProject: (project: Project | null) => void;
-  loading: boolean;
+  projects: Project[];
+  setProjects: (projects: Project[]) => void;
+  ro: RO | null;
   setRo: (ro: RO | null) => void;
-  fetchROs: () => void;
-  fetchPIUs: (roId: string) => void;
-  fetchProjects: (piuId: string) => void;
+  setROs: (ros: RO[]) => void;
+  ros: any[];
+  piu: PIU | null;
+  pius: any[];
+  setPiu: (piu: PIU | null) => void;
+  setPIUs: (pius: PIU[]) => void;
+  loading: boolean;
+  setLoading: (loading: boolean) => void;
   selectProject: (project: Project) => void;
+  //   fetchROs: () => void;
+  //   fetchPIUs: (roId: string) => void;
+  //   fetchProjects: (piuId: string) => void;
 };
 
 export type Project = {
@@ -60,8 +65,7 @@ export type PIU = {
   ro_id_fk: string;
 };
 
-const api = useApi();
-
+// const api = axios.create({});
 export const ProjectContext = createContext<ProjectContextType | undefined>(
   undefined
 );
@@ -70,47 +74,48 @@ export const ProjectProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-    const [projects, setProjects] = useState<Project[]>([]);
-    const [project, setProject] = useState<any>(null);
-    const [ros, setROs] = useState<RO[]>([]);
-    const [ro, setRo] = useState<RO | null>(null);
-    const [pius, setPIUs] = useState<PIU[]>([]);
-    const [piu, setPiu] = useState<PIU | null>(null);
-    const [loading, setLoading] = useState(true);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [project, setProject] = useState<any>(null);
+  const [ros, setROs] = useState<RO[]>([]);
+  const [ro, setRo] = useState<RO | null>(null);
+  const [pius, setPIUs] = useState<PIU[]>([]);
+  const [piu, setPiu] = useState<PIU | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const fetchROs = async () => {
-    try{
-        const ros = await api.get("/nsv/master/ro-list");
-        setROs(ros.data);
-    }catch (error) {
-        console.error("Error fetching ROs:", error);
-    }
-    finally {
-        setLoading(false);
-    }
-  };
+  //   const fetchROs = async () => {
+  //     try{
+  //         const ros = await api.get("/nsv/master/ro-list");
+  //         console.log("Fetched ROs:", ros);
+  //         setROs(ros.data);
+  //     }catch (error) {
+  //         console.error("Error fetching ROs:", error);
+  //     }
+  //     finally {
+  //         setLoading(false);
+  //     }
+  //   };
 
-  const fetchPIUs = async(roId: string) =>{
-    try{
-        const pius = await api.get(`/nsv/master/piu-list?ro_id=${roId}`);
-        setPIUs(pius.data);
-    }catch (error) {
-        console.error("Error fetching PIUs:", error);
-    }finally {
-        setLoading(false);
-    }
-  }
+  //   const fetchPIUs = async(roId: string) =>{
+  //     try{
+  //         const pius = await api.get(`/nsv/master/piu-list?ro_id=${roId}`);
+  //         setPIUs(pius.data);
+  //     }catch (error) {
+  //         console.error("Error fetching PIUs:", error);
+  //     }finally {
+  //         setLoading(false);
+  //     }
+  //   }
 
-  const fetchProjects = async (piuId: string) => {
-    try {
-      const projects = await api.get(`/nsv/master/project-list?piu_id=${piuId}`);
-      setProjects(projects.data);
-    } catch (error) {
-      console.error("Error fetching projects:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  //   const fetchProjects = async (piuId: string) => {
+  //     try {
+  //       const projects = await api.get(`/nsv/master/project-list?piu_id=${piuId}`);
+  //       setProjects(projects.data);
+  //     } catch (error) {
+  //       console.error("Error fetching projects:", error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
 
   const selectProject = (project: Project) => {
     setProject(project);
@@ -139,21 +144,25 @@ export const ProjectProvider = ({
   }, []);
 
   return (
-    <ProjectContext.Provider value={{
+    <ProjectContext.Provider
+      value={{
         ros,
         ro,
         setRo,
-        fetchROs,
+        setROs,
         pius,
         piu,
         setPiu,
-        fetchPIUs,
+        setPIUs,
         projects,
         project,
         setProject,
-        fetchProjects,
+        setProjects,
+        setLoading,
         loading,
-        selectProject }}>
+        selectProject,
+      }}
+    >
       {children}
     </ProjectContext.Provider>
   );

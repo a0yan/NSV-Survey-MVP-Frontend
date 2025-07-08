@@ -1,4 +1,5 @@
 import { AuthProvider } from '@/context/AuthContext';
+import { ProjectProvider } from '@/context/ProjectContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useFonts } from 'expo-font';
 import { Slot } from 'expo-router';
@@ -13,7 +14,10 @@ export default function RootLayout() {
     // <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
     <>
       <AuthProvider>
+        <ProjectProvider>
+
         <Slot/>
+        </ProjectProvider>
       </AuthProvider>
     </>
     // </ThemeProvider>
