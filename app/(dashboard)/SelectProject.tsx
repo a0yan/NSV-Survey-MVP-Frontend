@@ -104,8 +104,8 @@ const SelectProject = () => {
 
   const DetailItem = ({ label, value }: { label: string; value: any }) => (
     <View className="mb-3">
-      <Text className="text-sm text-gray-500">{label}</Text>
-      <Text className="text-base font-medium text-[#1f2937]">
+      <Text className="text-base text-[#1f2937]">{label}</Text>
+      <Text className="text-xs font-medium text-gray-500 ">
         {value ?? "—"}
       </Text>
     </View>
@@ -131,7 +131,7 @@ const SelectProject = () => {
       } shadow-sm`}
       onPress={() => handleSelectProject(item)}
     >
-      <Text className="text-lg font-bold text-[#1f2937]">
+      <Text className="text-lg font-semibold text-[#1f2937]">
         {item.project_name}
       </Text>
       <Text className="text-sm text-gray-500 mt-1">UPC: {item.upc}</Text>
@@ -145,7 +145,7 @@ const SelectProject = () => {
         <View className="bg-indigo-100 rounded-full w-20 h-20 items-center justify-center shadow-md mb-3">
           <MaterialCommunityIcons name="road-variant" size={44} color="#2563eb" />
         </View>
-        <Text className="text-2xl font-extrabold text-[#1f2937] mb-1">
+        <Text className="text-4xl font-extrabold text-[#1f2937] mb-1">
           Select a Project
         </Text>
         <Text className="text-base text-gray-500">
@@ -154,7 +154,7 @@ const SelectProject = () => {
       </View>
 
       {/* RO Picker */}
-      <Text className="mb-1 font-semibold text-[#1f2937]">Select Regional Office</Text>
+      <Text className="text-xl mb-1 font-extrabold text-[#1f2937]">Select Regional Office</Text>
       <View className="bg-white rounded-xl mb-4 shadow-sm">
         <Picker
           selectedValue={ro?.id || ""}
@@ -175,7 +175,7 @@ const SelectProject = () => {
       {/* PIU Picker */}
       {ro && (
         <>
-          <Text className="mb-1 font-semibold text-[#1f2937]">Select PIU</Text>
+          <Text className="text-xl mb-1 font-extrabold text-[#1f2937]">Select PIU</Text>
           <View className="bg-white rounded-xl mb-4 shadow-sm">
             <Picker
               selectedValue={piu?.id || ""}
@@ -191,16 +191,16 @@ const SelectProject = () => {
             </Picker>
           </View>
             {pius.length === 0 && (
-              <Text className="text-red-500 mb-4 text-center">No PIUs available for this RO</Text>
+              <Text className="text-red-500 font-bold mb-4 text-center">No PIUs available for this RO</Text>
             )}
         </>
       )}
 
       {piu && projects.length !== 0&&(
-        <Text className="mb-2 font-semibold text-[#1f2937]">Select Project:</Text>
+        <Text className="text-xl mb-2 font-extrabold text-[#1f2937]">Select Project:</Text>
       )}
       {projects.length === 0 && piu &&(
-        <Text className="text-red-500 text-center mt-4">
+        <Text className="text-red-500 font-bold text-center mt-4">
           No projects available for this PIU
         </Text>
       )}
@@ -226,17 +226,18 @@ const SelectProject = () => {
         <View className="bg-white p-5 rounded-2xl shadow-md mt-6 mb-8">
           
           <View className="flex-row justify-between items-center mb-4">
-            <Text className="text-2xl font-bold text-[#1f2937]">
+            <Text className="text-xl font-extrabold text-[#1f2937]">
               Active Project Details:
             </Text>
             <TouchableOpacity onPress={() => handleActiveProject(false)}>
               <Text className="text-red-500 font-medium">Deactivate</Text>
             </TouchableOpacity>
           </View>
-          <Text className="text-xl font-bold text-[#1f2937] mb-2">
+          <Text className="font-extrabold text-[#1f2937] mb-2">
             {project.project_name}            
           </Text>
           <DetailItem label="UPC" value={project.upc} />
+          <DetailItem label="NH-No." value={project.nh_number} />
           <DetailItem label="Year" value={project.year} />
           <DetailItem label="Cycle" value={project.cycle} />
           <DetailItem label="Concessionaire" value={project.concessionaire} />
@@ -267,8 +268,6 @@ const SelectProject = () => {
           </TouchableOpacity>
         </View>
       )}
-
-
     </>
   );
 

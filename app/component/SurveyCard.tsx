@@ -28,14 +28,18 @@ const SurveyCard = ({ inspection }: Props) => {
     if (url) Linking.openURL(url);
   };
 
-const formattedDate = new Date(Number(inspection_date)).toLocaleString(undefined, {
-  year: 'numeric',
-  month: '2-digit',
-  day: '2-digit',
-  hour: '2-digit',
-  minute: '2-digit',
-  hour12: true, // change to false if you want 24-hour format
-});
+  const formatEpochDate = (epochStr: string | number) => {
+    console.log("formatEpochDate called with:", epochStr);
+    const epoch = Number(epochStr) * 1000; // Convert seconds → milliseconds
+    if (isNaN(epoch)) return "—";
+    const date = new Date(epoch);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
+
+  const formattedDate = formatEpochDate(inspection_date);
 
   return (
     <View style={styles.card} >
