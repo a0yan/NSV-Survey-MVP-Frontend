@@ -12,6 +12,7 @@ import {
   View,
 } from 'react-native';
 import SurveyCard from '../component/SurveyCard';
+import { useProject } from '@/hooks/useProject';
 
 interface InspectionData {
   id: string;
@@ -29,8 +30,10 @@ const ViewReport = () => {
   const [loading, setLoading] = useState(true);
   const axios=useApi()
 
+  const { project } = useProject();
   // You can replace this with token from secure storage/context
-  const project_id = '7b094a86-7da3-4771-b67f-a42f1c0f8d13';
+  // const project_id = '7b094a86-7da3-4771-b67f-a42f1c0f8d13';
+  const project_id = project?.id || ''; // Use project ID from context or state
 
   useEffect(() => {
     const fetchInspections = async () => {
@@ -42,7 +45,7 @@ const ViewReport = () => {
           }
         );
         setInspections(response.data.data);
-        console.log(response.data); // Log the fetched data for debugging
+        console.log("ViewReport: Inspection data:",response.data); // Log the fetched data for debugging
       } catch (error) {
         console.error('Error fetching inspections:', error);
       } finally {
@@ -63,7 +66,7 @@ const ViewReport = () => {
 
   return (
     // <SafeAreaView style={styles.safeArea}>
-    <SafeAreaView className='flex-1 mx-3'>
+    <SafeAreaView className='flex-1 bg-[#f4f8ff] px-3'>
       <ScrollView contentContainerStyle={styles.contentContainer}>
         <View style={styles.headerContainer} className='justify-center items-center'>
           <View className="bg-indigo-100 rounded-full w-12 h-12 items-center justify-center shadow-md mb-2">
@@ -71,6 +74,7 @@ const ViewReport = () => {
           </View>
           <Text style={styles.header}>Inspections</Text>
         </View>
+        
         {inspections.map((inspection) => (
           <SurveyCard key={inspection.id} inspection={inspection} />
         ))}

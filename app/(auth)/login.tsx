@@ -2,18 +2,18 @@ import { useAuth } from '@/context/AuthContext';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, Pressable, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, Pressable, Text, TextInput, TouchableOpacity, View, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { twMerge } from 'tailwind-merge';
 
 
 const roles = [
-  { label: 'Surveyor', icon: 'account-circle-outline' },
-  { label: 'Supervisor', icon: 'account-supervisor-outline' },
   { label: 'Admin', icon: 'account-tie-outline' },
+  { label: 'RO', icon: 'account-circle-outline' },
+  { label: 'PIU', icon: 'account-supervisor-outline' },
 ];
 
 const LoginScreen = () => {
-  const [role, setRole] = useState('Surveyor');
+  const [role, setRole] = useState('Admin');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -42,6 +42,7 @@ const LoginScreen = () => {
 };
 
   return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
     <KeyboardAvoidingView
       className="flex-1 bg-[#f4f8ff]"
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -119,6 +120,7 @@ const LoginScreen = () => {
         </View>
       </View>
     </KeyboardAvoidingView>
+    </TouchableWithoutFeedback>
   );
 };
 

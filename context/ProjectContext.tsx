@@ -28,6 +28,7 @@ export type Project = {
   id: string;
   project_name: string;
   upc: string;
+  nh_number: string;
   piu_id_fk: string;
   survey_date: string;
   year: number;

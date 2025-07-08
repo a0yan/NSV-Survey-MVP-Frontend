@@ -10,6 +10,7 @@ import { AxiosResponse } from "axios";
 import { useEffect, useMemo, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
+import { SafeAreaView } from "react-native-safe-area-context";
   const baseKeys = [
     { key: 'roughness_bi', label: 'Roughness' },
     { key: 'rut_depth_mm', label: 'Rut Depth' },
@@ -183,7 +184,8 @@ const distressColumns: TableColumn<DistressRow>[] = useMemo(() => {
   };
 
   return (
-    <ScrollView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-[#f4f8ff]">
+    <ScrollView className="flex-1 bg-[#f4f8ff]">
       {/* Header */}
       <View className="flex-row items-center justify-between px-4 pt-6 pb-2">
         <Text className="text-lg font-semibold">Live GPS Survey</Text>
@@ -220,7 +222,7 @@ const distressColumns: TableColumn<DistressRow>[] = useMemo(() => {
         </View>
       </View>
       {/* Chainage and Distance */}
-      <View className="flex-row justify-between items-center bg-orange-50 px-4 py-2">
+      <View className="flex-row justify-between items-center bg-white px-4 py-2">
         <View>
           <Text className="text-xs text-gray-400">START CHAINAGE</Text>
           <Text className="text-lg font-bold text-orange-600">
@@ -312,13 +314,13 @@ const distressColumns: TableColumn<DistressRow>[] = useMemo(() => {
       </TouchableOpacity>
       {/* Action Buttons */}
       <View className="flex-row mx-4 mt-3 mb-6 gap-2">
-        <TouchableOpacity className="flex-1 flex-row items-center justify-center bg-gray-100 rounded-lg py-3">
+        <TouchableOpacity className="flex-1 flex-row items-center justify-center bg-white rounded-lg py-3">
           <Ionicons name="camera-outline" size={18} color="#22223b" />
           <Text className="ml-2 text-base font-medium text-gray-700">
             Take Photo
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity className="flex-1 flex-row items-center justify-center bg-gray-100 rounded-lg py-3">
+        <TouchableOpacity className="flex-1 flex-row items-center justify-center bg-white rounded-lg py-3">
           <Ionicons name="cloud-upload-outline" size={18} color="#22223b" />
           <Text className="ml-2 text-base font-medium text-gray-700">
             Sync Data
@@ -326,6 +328,7 @@ const distressColumns: TableColumn<DistressRow>[] = useMemo(() => {
         </TouchableOpacity>
       </View>
     </ScrollView>
+    </SafeAreaView>
   );
 };
 export default LiveGPSSurveyScreen;
