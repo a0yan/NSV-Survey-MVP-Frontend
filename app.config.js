@@ -22,7 +22,7 @@ export default {
       "package": "com.NSVSurveyMVPFrontend",
       "config": {
         "googleMaps": {
-          "apiKey": process.env.EXPO_PUBLIC_GOOGLE_API_KEY || ""
+          "apiKey": "AIzaSyAM0D9JCiLGTFWkOFHVrjmrz_SJcnOa7vo"
         }
       }
     },
@@ -32,17 +32,17 @@ export default {
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "expo-router",
-      [
-        "expo-splash-screen",
-        {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
-        }
-      ]
-    ],
+  "expo-router",
+  [
+    "expo-splash-screen",
+    {
+      "image": "./assets/images/splash-icon.png",
+      "imageWidth": 200,
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    }
+  ]
+],
     "experiments": {
       "typedRoutes": true
     },
