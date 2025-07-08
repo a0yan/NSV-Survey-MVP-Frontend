@@ -199,7 +199,7 @@ import { Picker } from '@react-native-picker/picker';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useProject } from '@/hooks/useProject';
-import { RO, PIU, Project } from '@/context/ProjectContext';
+import { Project } from '@/context/ProjectContext';
 import { useRouter } from 'expo-router';
 
 const SelectProject = () => {
@@ -241,7 +241,7 @@ const SelectProject = () => {
 
   const handleSelectProject = (proj: Project) => {
     selectProject(proj);
-    router.push('/project/ProjectDetails');
+    // router.push('/project/ProjectDetails');
   };
 
   return (
