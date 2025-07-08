@@ -1,8 +1,10 @@
+// import { PIU, Project, RO } from "@/context/ProjectContext";
 // import { useApi } from "@/hooks/useApi";
 // import { useProject } from "@/hooks/useProject";
+// import { GeneralMetaResponse } from "@/interface/GeneraMetaResponse";
 
-// const api = useApi();
-// // const [setROs, setPIUs, setProjects, setLoading] = useProject();
+// const axios = useApi();
+// // // const [setROs, setPIUs, setProjects, setLoading] = useProject();
 // const {
 //   setROs,
 //   setPIUs,
@@ -10,39 +12,73 @@
 //   setLoading
 // } = useProject();
 
-
-
 // export const fetchROs = async () => {
-//     try{
-//         const ros = await api.get("/nsv/master/ro-list");
-//         console.log("Fetched ROs:", ros);
-//         setROs(ros.data);
-//     }catch (error) {
-//         console.error("Error fetching ROs:", error);
-//     }
-//     finally {
-//         setLoading(false);
-//     }
-//   };
-
-// export const fetchPIUs = async(roId: string) =>{
-//     try{
-//         const pius = await api.get(`/nsv/master/piu-list?ro_id=${roId}`);
-//         setPIUs(pius.data);
-//     }catch (error) {
-//         console.error("Error fetching PIUs:", error);
-//     }finally {
-//         setLoading(false);
-//     }
+//   try {
+//     const res = await axios.get<GeneralMetaResponse<RO[]>>("/nsv/master/ro-list");
+//     console.log("Fetched ROs:", res);
+//     setROs(res.data?.data ?? []);
+//   } catch (error) {
+//     console.error("Error fetching ROs:", error);
+//   } finally {
+//     setLoading(false);
 //   }
+// };
+
+  
+// export const fetchPIUs = async(roId: string) =>{
+//         try{
+//             const res = await axios.get<GeneralMetaResponse<PIU[]>>(`/nsv/master/piu-list?ro_id=${roId}`);
+//             setPIUs(res.data?.data ?? []);
+//         }catch (error) {
+//             console.error("Error fetching PIUs:", error);
+//         }finally {
+//             setLoading(false);
+//         }
+//       }
 
 // export const fetchProjects = async (piuId: string) => {
-//     try {
-//       const projects = await api.get(`/nsv/master/project-list?piu_id=${piuId}`);
-//       setProjects(projects.data);
-//     } catch (error) {
-//       console.error("Error fetching projects:", error);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
+//         try {
+//           const res = await axios.get<GeneralMetaResponse<Project[]>>(`/nsv/master/project-list?piu_id=${piuId}`);
+//           setProjects(res.data?.data ?? []);
+//         } catch (error) {
+//           console.error("Error fetching projects:", error);
+//         } finally {
+//           setLoading(false);
+//         }
+//       };
+
+
+// // export const fetchROs = async () => {
+// //     try{
+// //         const ros = await api.get("/nsv/master/ro-list");
+// //         console.log("Fetched ROs:", ros);
+// //         setROs(ros.data);
+// //     }catch (error) {
+// //         console.error("Error fetching ROs:", error);
+// //     }
+// //     finally {
+// //         setLoading(false);
+// //     }
+// //   };
+
+// // export const fetchPIUs = async(roId: string) =>{
+// //     try{
+// //         const pius = await api.get(`/nsv/master/piu-list?ro_id=${roId}`);
+// //         setPIUs(pius.data);
+// //     }catch (error) {
+// //         console.error("Error fetching PIUs:", error);
+// //     }finally {
+// //         setLoading(false);
+// //     }
+// //   }
+
+// // export const fetchProjects = async (piuId: string) => {
+// //     try {
+// //       const projects = await api.get(`/nsv/master/project-list?piu_id=${piuId}`);
+// //       setProjects(projects.data);
+// //     } catch (error) {
+// //       console.error("Error fetching projects:", error);
+// //     } finally {
+// //       setLoading(false);
+// //     }
+// //   };

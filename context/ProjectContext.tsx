@@ -1,13 +1,16 @@
 import { useApi } from "@/hooks/useApi";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
-import { createContext, useEffect, useState } from "react";
+import { createContext, use, useEffect, useState } from "react";
 
 type ProjectContextType = {
   project: Project | null;
   setProject: (project: Project | null) => void;
   projects: Project[];
   setProjects: (projects: Project[]) => void;
+  isProjectActive: boolean;
+  // setIsProjectActive: (isActive: boolean) => void;
+  activeProject: (active: boolean) => void;
   ro: RO | null;
   setRo: (ro: RO | null) => void;
   setROs: (ros: RO[]) => void;
@@ -18,10 +21,7 @@ type ProjectContextType = {
   setPIUs: (pius: PIU[]) => void;
   loading: boolean;
   setLoading: (loading: boolean) => void;
-  selectProject: (project: Project) => void;
-  //   fetchROs: () => void;
-  //   fetchPIUs: (roId: string) => void;
-  //   fetchProjects: (piuId: string) => void;
+  // selectProject: (project: Project) => void;
 };
 
 export type Project = {
@@ -76,72 +76,166 @@ export const ProjectProvider = ({
 }) => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [project, setProject] = useState<any>(null);
+  const [isProjectActive, setIsProjectActive] = useState(false);
   const [ros, setROs] = useState<RO[]>([]);
   const [ro, setRo] = useState<RO | null>(null);
   const [pius, setPIUs] = useState<PIU[]>([]);
   const [piu, setPiu] = useState<PIU | null>(null);
   const [loading, setLoading] = useState(true);
 
-  //   const fetchROs = async () => {
-  //     try{
-  //         const ros = await api.get("/nsv/master/ro-list");
-  //         console.log("Fetched ROs:", ros);
-  //         setROs(ros.data);
-  //     }catch (error) {
-  //         console.error("Error fetching ROs:", error);
-  //     }
-  //     finally {
-  //         setLoading(false);
-  //     }
-  //   };
 
-  //   const fetchPIUs = async(roId: string) =>{
-  //     try{
-  //         const pius = await api.get(`/nsv/master/piu-list?ro_id=${roId}`);
-  //         setPIUs(pius.data);
-  //     }catch (error) {
-  //         console.error("Error fetching PIUs:", error);
-  //     }finally {
-  //         setLoading(false);
-  //     }
-  //   }
-
-  //   const fetchProjects = async (piuId: string) => {
-  //     try {
-  //       const projects = await api.get(`/nsv/master/project-list?piu_id=${piuId}`);
-  //       setProjects(projects.data);
-  //     } catch (error) {
-  //       console.error("Error fetching projects:", error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  const selectProject = (project: Project) => {
-    setProject(project);
-    AsyncStorage.setItem("project", JSON.stringify(project))
+  const activeProject = (active: boolean) => {
+    if (active) {
+      setIsProjectActive(true);
+      AsyncStorage.setItem("project", JSON.stringify(project))
+        .then(() => {
+          console.log("Project saved to storage", JSON.stringify(project));
+        })
+        .catch((error) => {
+          console.error("Error saving project to storage", error);
+        });
+  
+      AsyncStorage.setItem("ro", JSON.stringify(ro))
       .then(() => {
-        console.log("Project saved to storage");
-      })
-      .catch((error) => {
-        console.error("Error saving project to storage", error);
-      });
+          console.log("RO saved to storage", JSON.stringify(ro));
+        })
+        .catch((error) => {
+          console.error("Error saving project to storage", error);
+        });
+  
+        AsyncStorage.setItem("piu", JSON.stringify(piu))
+        .then(() => {
+          console.log("PIU saved to storage", JSON.stringify(piu));
+        })
+        .catch((error) => {
+          console.error("Error saving project to storage", error);
+        });
+
+      console.log("isProjectActivate", true);
+        
+      AsyncStorage.setItem("isProjectActivate", JSON.stringify(true))
+      .then(() => {
+          console.log("isProjectActivate saved to storage", JSON.stringify(true));
+        })
+        .catch((error) => {
+          console.error("Error saving project to storage", error);
+        });
+      } else { 
+        setIsProjectActive(false);
+        AsyncStorage.removeItem("project")
+          .then(() => {
+            console.log("Project removed from storage");
+          })
+          .catch((error) => {
+            console.error("Error removing project from storage", error);
+          });
+  
+        AsyncStorage.removeItem("ro")
+          .then(() => {
+            console.log("RO removed from storage");
+          })
+          .catch((error) => {
+            console.error("Error removing RO from storage", error);
+          });
+  
+        AsyncStorage.removeItem("piu")
+          .then(() => {
+            console.log("PIU removed from storage");
+          })
+          .catch((error) => {
+            console.error("Error removing PIU from storage", error);
+          });
+  
+        AsyncStorage.removeItem("isProjectActivate")
+          .then(() => {
+            console.log("isProjectActivate removed from storage");
+          })
+          .catch((error) => {
+            console.error("Error removing isProjectActivate from storage", error);
+          });
+
+          // setPiu(null);
+          // setProject(null)
+          // setProjects([]);
+      }
   };
 
+  // const fetchStoredProject = async () => {
+  //   const isProjectActivate = await AsyncStorage.getItem("isProjectActivate");
+  //   const project = await AsyncStorage.getItem("project");
+  //   const ro = await AsyncStorage.getItem("ro");
+  //   const piu = await AsyncStorage.getItem("piu");
+  //   if (project) {
+  //     try {
+  //       setProject(JSON.parse(project));
+  //     } catch (error) {
+  //       console.error("Error parsing project from storage", error);
+  //     }
+  //   }
+  //   if (ro) {
+  //     try {
+  //       setRo(JSON.parse(ro));
+  //     } catch (error) {
+  //       console.error("Error parsing ro from storage", error);
+  //     }
+  //   }
+  //   if (piu) {
+  //     try {
+  //       setPiu(JSON.parse(piu));
+  //     } catch (error) {
+  //       console.error("Error parsing piu from storage", error);
+  //     }
+  //   }
+  //   if (isProjectActivate) {
+  //     // setIsProjectActive(isProjectActivate === "true");
+  //     setIsProjectActive(true);
+  //   } else {
+  //     setIsProjectActive(false);
+  //   }
+  //   console.log("Fetched stored project:", {project, ro, piu, isProjectActivate});
+    
+  // };
+
+
   const fetchStoredProject = async () => {
-    const project = await AsyncStorage.getItem("project");
-    if (project) {
-      try {
-        setProject(JSON.parse(project));
-      } catch (error) {
-        console.error("Error parsing project from storage", error);
-      }
+    try {
+      const [isActive, proj, storedRo, storedPiu] = await Promise.all([
+        AsyncStorage.getItem("isProjectActivate"),
+        AsyncStorage.getItem("project"),
+        AsyncStorage.getItem("ro"),
+        AsyncStorage.getItem("piu"),
+      ]);
+
+      if (proj) setProject(JSON.parse(proj));
+      if (storedRo) setRo(JSON.parse(storedRo));
+      if (storedPiu) setPiu(JSON.parse(storedPiu));
+      if (isActive) setIsProjectActive(JSON.parse(isActive));
+      // setIsProjectActive(isActive === "true");
+
+      console.log("Fetched stored project state", {
+        project: proj,
+        ro: storedRo,
+        piu: storedPiu,
+        isProjectActive: isActive,
+      });
+    } catch (error) {
+      console.error("Error fetching from AsyncStorage:", error);
     }
   };
 
   useEffect(() => {
     fetchStoredProject();
   }, []);
+
+  // useEffect(() => {
+  //   setPiu(null);
+  //   setProject(null)
+  //   setProjects([]);
+  // }, [ro]);
+
+  // useEffect(() => {
+  //   activeProject(isProjectActive);
+  // },[isProjectActive])
 
   return (
     <ProjectContext.Provider
@@ -160,7 +254,8 @@ export const ProjectProvider = ({
         setProjects,
         setLoading,
         loading,
-        selectProject,
+        isProjectActive,
+        activeProject
       }}
     >
       {children}

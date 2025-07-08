@@ -2,6 +2,7 @@ import Table, { TableColumn } from "@/components/ui/Table";
 import ToggleButton from "@/components/ui/Toggle";
 import { useApi } from "@/hooks/useApi";
 import useLiveLocation from "@/hooks/useLocation";
+import { useProject } from "@/hooks/useProject";
 import { DistressData } from "@/interface/DistressData";
 import { GeneralMetaResponse } from "@/interface/GeneraMetaResponse";
 import { Ionicons } from "@expo/vector-icons";
@@ -34,7 +35,10 @@ const LiveGPSSurveyScreen = () => {
   const [activeLanesMap, setActiveLanesMap] = useState<ActiveLaneResponse | null>(null);
 
   const liveLocation = useLiveLocation();
-  const projectId = "1ee51074-afe0-4300-bb03-ea34afdee412"; // Replace with actual project ID if needed
+  const { project , isProjectActive} = useProject();
+  
+  const projectId = project?.id || ""; // Get project ID from context or set to empty string if not available
+  // const projectId = "1ee51074-afe0-4300-bb03-ea34afdee412"; // Replace with actual project ID if needed
   const axios = useApi();
   const [distressData, setDistressData] = useState<DistressData[]>([]);
   const [chainageData, setChainageData] = useState<ChainageData>({ chainageStart: "", chainageEnd: "" });
@@ -88,6 +92,8 @@ const distressColumns: TableColumn<DistressRow>[] = useMemo(() => {
   useEffect(() => {
     if(!liveLocation) 
       return;
+    console.log("projectId", projectId);
+    
     setLocation({
       latitude: liveLocation?.latitude || 0,
       longitude: liveLocation?.longitude || 0,
@@ -96,12 +102,14 @@ const distressColumns: TableColumn<DistressRow>[] = useMemo(() => {
     });  
     axios
       .post("/nsv/distresses/distress-data", {
-        latitude: "80.034367",
-        longitude: "20.827996",
+        // latitude: "80.034367",
+        // longitude: "20.827996",
+        latitude: location.latitude.toString(),
+        longitude: location.longitude.toString(),
         project_id: projectId,
       })
       .then((response: AxiosResponse<GeneralMetaResponse<DistressData[]>>) => {
-        // console.log("Distress data sent successfully:", response.data.data);
+        console.log("Distress data sent successfully:", response);
   
         setDistressData(response.data.data||[]);
         if(response.data.data.length > 0) {
