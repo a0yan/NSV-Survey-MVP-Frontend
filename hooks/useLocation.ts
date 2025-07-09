@@ -3,22 +3,24 @@ import { useEffect, useState } from 'react';
 
 export default function useLiveLocation() {
   const [location, setLocation] = useState<Location.LocationObjectCoords | null>(null);
-  const projectId="PROJECT_ID"; // Replace with actual project ID if needed
 
   useEffect(() => {
     let subscriber: Location.LocationSubscription;
 
     (async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
+      console.log('Location permission status:', status);
       if (status !== 'granted') return;
 
       subscriber = await Location.watchPositionAsync(
         {
           accuracy: Location.Accuracy.High,
-          timeInterval: 120000, // every 5 seconds
-          distanceInterval: 50, // or every 5 meters
+          timeInterval: 300000, // every 5 minutes
+          distanceInterval: 50, // or every 50 meters
         },
-        (loc) => setLocation(loc.coords)
+        (loc) => {
+          setLocation(loc.coords);
+        }
       );
     })();
 

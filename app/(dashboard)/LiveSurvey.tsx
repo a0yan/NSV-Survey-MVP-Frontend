@@ -7,7 +7,7 @@ import { DistressData } from "@/interface/DistressData";
 import { GeneralMetaResponse } from "@/interface/GeneraMetaResponse";
 import { Ionicons } from "@expo/vector-icons";
 import { AxiosResponse } from "axios";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -38,22 +38,39 @@ const LiveGPSSurveyScreen = () => {
   const liveLocation = useLiveLocation();
   const { project , isProjectActive} = useProject();
   
-  const projectId = project?.id || ""; // Get project ID from context or set to empty string if not available
+  const projectId = "90"; // Get project ID from context or set to empty string if not available
   // const projectId = "1ee51074-afe0-4300-bb03-ea34afdee412"; // Replace with actual project ID if needed
   const axios = useApi();
   const [distressData, setDistressData] = useState<DistressData[]>([]);
-  const [chainageData, setChainageData] = useState<ChainageData>({ chainageStart: "", chainageEnd: "" });
+  // Chainage start logic: start at 1, increment by 100
+  const [chainageData, setChainageData] = useState<ChainageData>({ chainageStart: "1", chainageEnd: "" });
+  const [chainageCounter, setChainageCounter] = useState<number>(1);
   const [location, setLocation] = useState({
     latitude: 0,
     longitude: 0,
     latitudeDelta: 0.005,
     longitudeDelta: 0.005,
   });
+  const [startLocation, setStartLocation] = useState({
+    latitude: 0,
+    longitude: 0,
+  });
   const [isLeft, setIsLeft] = useState(true); // State to track selected lane (left or right)
   const checkLocationLoaded = () => {
     let loaded = location === undefined || location === null || location.latitude === 0 ? false : true;
     return loaded;
   };
+
+  // --- Start/End LatLong and Chainage window tracking ---
+  // LatLong window
+  const startLatLongRef = useRef<{ latitude: number; longitude: number } | null>(null);
+  const [startLatLong, setStartLatLong] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [endLatLong, setEndLatLong] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [msg,setMsg]=useState<string>("");
+  // Chainage window
+  const startChainageRef = useRef<number>(1);
+  const [startChainage,setStartChainage]=useState(1)
+  
 const activeLanes = useMemo(() => {
   const selectedLane = isLeft ? 'L' : 'R';
   const lanes = activeLanesMap?.[selectedLane] || [];
@@ -89,43 +106,100 @@ const distressColumns: TableColumn<DistressRow>[] = useMemo(() => {
 
 
 
-  // Update location state when liveLocation changes
+  // Clubbed useEffect for LatLong and Chainage window logic
   useEffect(() => {
-    if(!liveLocation) 
-      return;
-    console.log("projectId", projectId);
-    
+    if (!liveLocation) return;
+        axios
+      .post("/nsv/distresses/distress-data", {
+        latitude: liveLocation.latitude.toString(),
+        longitude: liveLocation.longitude.toString(),
+        project_id: projectId,
+      })
+      .then((response: AxiosResponse<GeneralMetaResponse<DistressData[]>>) => {
+        console.log("Distress data sent successfully:", response);
+        setDistressData(response.data.data || []);
+        for (const item of response.data.data || []) {
+          setChainageData({
+            chainageStart: item.start_chainage_m,
+            chainageEnd: item.end_chainage_m,
+          });
+          break;
+        }
+      })
+      .catch((error) => {
+        console.error(error.message);
+      });
     setLocation({
       latitude: liveLocation?.latitude || 0,
       longitude: liveLocation?.longitude || 0,
       latitudeDelta: 0.005,
       longitudeDelta: 0.005,
-    });  
-    axios
-      .post("/nsv/distresses/distress-data", {
-        // latitude: "80.034367",
-        // longitude: "20.827996",
-        latitude: location.latitude.toString(),
-        longitude: location.longitude.toString(),
-        project_id: projectId,
-      })
-      .then((response: AxiosResponse<GeneralMetaResponse<DistressData[]>>) => {
-        console.log("Distress data sent successfully:", response);
-  
-        setDistressData(response.data.data||[]);
-        if(response.data.data.length > 0) {
-          setChainageData({
-            chainageStart: response.data.data[0].start_chainage_m.toString(),
-            chainageEnd: response.data.data[0].end_chainage_m.toString(),
-          });
-        }
-
-      })
-      .catch((error) => {
-        console.error(error.message);
+    });
+    if (startLocation == null||startLatLongRef.current==null||(startLatLongRef.current?.latitude === liveLocation?.latitude&& startLatLongRef.current?.longitude === liveLocation?.longitude)) {
+      setStartLocation({
+        latitude: liveLocation.latitude || 0,
+        longitude: liveLocation.longitude || 0,
       });
-    
+      startLatLongRef.current = {
+        latitude: liveLocation.latitude || 0,
+        longitude: liveLocation.longitude || 0,
+      }
+      return;
+    }
+
+
+
+    // --- LatLong and Chainage window logic (combined API) ---
+    const currentLatLong = {
+      latitude: liveLocation.latitude,
+      longitude: liveLocation.longitude,
+    };
+      // Prepare chainage data if available
+
+      const endChainage=startChainageRef.current+100;
+      // Send all segment data to API
+      console.log("Sending segment to API", {
+        startLatLong: startLatLongRef.current,
+        endLatLong: currentLatLong,
+        startChainage: startChainageRef.current,
+        endChainage: endChainage
+      });
+      sendSegmentToAPI(
+        startLatLongRef.current,
+        currentLatLong,
+        startChainageRef.current,
+        endChainage
+      );
+      // Move window forward for latlong
+      setStartLatLong(startLatLongRef.current);
+      setEndLatLong(currentLatLong);
+      setStartChainage(startChainageRef.current);
+      startLatLongRef.current = currentLatLong;
+      startChainageRef.current += 100
   }, [liveLocation]);
+
+  // --- API sender for combined segment ---
+  const sendSegmentToAPI = async (
+    startLatLong: { latitude: number; longitude: number } | null,
+    endLatLong: { latitude: number; longitude: number } | null,
+    startChainage: number | null,
+    endChainage: number | null
+  ) => {
+    try {
+      axios.post("/nsv/distresses/add-distress-data",{
+          start_latitude: startLatLong?.latitude,
+          start_longitude: startLatLong?.longitude,
+          end_latitude: endLatLong?.latitude,
+          end_longitude: endLatLong?.longitude,
+          start_chainage_m: startChainage,
+          end_chainage_m: endChainage,}).then((response:AxiosResponse<GeneralMetaResponse<{}>>) => {
+            setMsg(response.data.msg);
+          });
+    } catch (error) {
+      console.error("Segment API send error", error);
+      setMsg("ERROR "+error);
+    }
+  };
 
   useEffect(() => {
   if (!projectId) return;
@@ -144,8 +218,7 @@ const distressColumns: TableColumn<DistressRow>[] = useMemo(() => {
       } else {
         acc.R.push(lane.lane_code);
       }
-      return acc;
-    }, { L: [], R: [] });
+      return acc;    }, { L: [], R: [] });
     setActiveLanesMap(laneMap);
   })
   .catch((err) => {
@@ -241,45 +314,41 @@ const distressColumns: TableColumn<DistressRow>[] = useMemo(() => {
         </View>
       </View>
       {/* Survey Data Card */}
-      {/* <View className="bg-gray-50 rounded-xl mx-4 mt-3 p-3">
+      <View className="bg-gray-50 rounded-xl mx-4 mt-3 p-3">
         <View className="flex-row justify-between items-center mb-2">
           <Text className="font-medium text-gray-700">
-            Auto-fetched Survey Data
+            Auto-Send Data
           </Text>
-          <TouchableOpacity className="flex-row items-center px-2 py-0.5">
-            <Ionicons name="pencil-outline" size={16} color="#2563eb" />
-            <Text className="text-xs text-[#2563eb] ml-1">Edit</Text>
-          </TouchableOpacity>
         </View>
         <View className="flex-row justify-between mb-1">
           <View>
-            <Text className="text-xs text-gray-400">ROAD WIDTH</Text>
-            <Text className="text-sm font-medium">{laneCodes.size}</Text>
+            <Text className="text-xs text-gray-400">START CHAINAGE-SEND</Text>
+            <Text className="text-sm font-medium text-red-300">{startChainage}</Text>
           </View>
           <View>
-            <Text className="text-xs text-gray-400">SHOULDER WIDTH</Text>
-            <Text className="text-sm font-medium">
-              {surveyData.shoulderWidth}
+            <Text className="text-xs text-gray-400">END CHAINAGE-SEND </Text>
+            <Text className="text-sm font-medium text-green-300">
+              {startChainage + 100}
             </Text>
           </View>
         </View>
         <View className="flex-row justify-between mb-1">
           <View>
-            <Text className="text-xs text-gray-400">SURFACE TYPE</Text>
-            <Text className="text-sm font-medium">
-              {surveyData.surfaceType}
+            <Text className="text-xs text-gray-400">START LAT LONG</Text>
+            <Text className="text-sm font-medium text-green-500">
+              {startLatLong ? `${startLatLong.latitude}, ${startLatLong.longitude}` : "N/A" }
             </Text>
           </View>
           <View>
-            <Text className="text-xs text-gray-400">CONDITION</Text>
-            <Text className="text-sm font-medium text-green-600">
-              {surveyData.condition}
+            <Text className="text-xs text-gray-400">END LAT LONG</Text>
+            <Text className="text-sm font-medium text-red-600">
+              {endLatLong ? `${endLatLong.latitude}, ${endLatLong.longitude}` : "N/A"}
             </Text>
           </View>
         </View>
-        <Text className="text-xs text-gray-400 mt-1">LAST UPDATED</Text>
-        <Text className="text-xs text-gray-500">{surveyData.lastUpdated}</Text>
-      </View> */}
+        <Text className="text-xs text-gray-400 mt-1">MSG</Text>
+        <Text className="text-xs text-gray-500">{msg}</Text>
+      </View>
       {/* Toggle */}
        <View>
       <ToggleButton onToggle={(value) => setIsLeft(value)} />
