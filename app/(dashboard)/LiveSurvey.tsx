@@ -105,8 +105,8 @@ const distressColumns: TableColumn<DistressRow>[] = useMemo(() => {
       .post("/nsv/distresses/distress-data", {
         // latitude: "80.034367",
         // longitude: "20.827996",
-        latitude: location.latitude.toString(),
-        longitude: location.longitude.toString(),
+        latitude: liveLocation.latitude.toString(),
+        longitude: liveLocation.longitude.toString(),
         project_id: projectId,
       })
       .then((response: AxiosResponse<GeneralMetaResponse<DistressData[]>>) => {
