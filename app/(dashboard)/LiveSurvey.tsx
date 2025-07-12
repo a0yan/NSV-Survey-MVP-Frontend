@@ -1,3 +1,4 @@
+import GenericModal from "@/components/ui/Modal";
 import Table, { TableColumn } from "@/components/ui/Table";
 import ToggleButton from "@/components/ui/Toggle";
 import { useApi } from "@/hooks/useApi";
@@ -7,8 +8,9 @@ import { DistressData } from "@/interface/DistressData";
 import { GeneralMetaResponse } from "@/interface/GeneraMetaResponse";
 import { Ionicons } from "@expo/vector-icons";
 import { AxiosResponse } from "axios";
+import { router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { SafeAreaView } from "react-native-safe-area-context";
   const baseKeys = [
@@ -36,7 +38,7 @@ const LiveGPSSurveyScreen = () => {
   const [activeLanesMap, setActiveLanesMap] = useState<ActiveLaneResponse | null>(null);
 
   const liveLocation = useLiveLocation();
-  const { project , isProjectActive} = useProject();
+  const { project ,surveyStartTime,isProjectActive} = useProject();
   
   const projectId = project?.id || ""; // Get project ID from context or set to empty string if not available
   // const projectId = "1ee51074-afe0-4300-bb03-ea34afdee412"; // Replace with actual project ID if needed
@@ -49,6 +51,8 @@ const LiveGPSSurveyScreen = () => {
     latitudeDelta: 0.005,
     longitudeDelta: 0.005,
   });
+  const [remarks, setRemarks] = useState("");
+  const [visible, setVisible] = useState(false); // State to control modal visibility
   const [isLeft, setIsLeft] = useState(true); // State to track selected lane (left or right)
   const checkLocationLoaded = () => {
     let loaded = location === undefined || location === null || location.latitude === 0 ? false : true;
@@ -84,6 +88,33 @@ const distressColumns: TableColumn<DistressRow>[] = useMemo(() => {
     })),
   ];
 }, [activeLanes]);
+
+const toggleModal = () => {
+  console.log("Toggling modal visibility");
+  setVisible(true)
+}
+
+const saveInspectionData=()=>{
+  const endEpoch = Date.now();
+  const durationEpoch=surveyStartTime==null?0:endEpoch-surveyStartTime;
+  const duration=new Date(durationEpoch).toISOString().substr(11, 8); // Format duration as HH:MM:SS
+  const data={
+    inspection_date: String(Date.now()),
+    remarks:remarks,
+    duration:duration
+
+  }
+  setRemarks("");
+  setVisible(false);
+  axios.post("/nsv/inspections/add-inspection",data,{params: { project_id: projectId }})
+  .then((res) => {
+    console.log("Inspection data saved successfully" + res.data);
+    router.navigate("/(dashboard)/SelectProject");
+  })
+  .catch((error) => {
+    console.error("Error saving inspection data:", error);
+  });
+}
 
 
 
@@ -307,9 +338,9 @@ const distressColumns: TableColumn<DistressRow>[] = useMemo(() => {
         ))}
       </View> */}
       {/* Add New Observation Button */}
-      <TouchableOpacity className="bg-green-600 rounded-lg mx-4 mt-4 py-3 items-center">
+      <TouchableOpacity onPress={() => toggleModal()} className="bg-red-500 rounded-lg mx-4 mt-4 py-3 items-center">
         <Text className="text-white text-base font-bold">
-          + Add New Observation
+          Stop Inspection
         </Text>
       </TouchableOpacity>
       {/* Action Buttons */}
@@ -327,6 +358,20 @@ const distressColumns: TableColumn<DistressRow>[] = useMemo(() => {
           </Text>
         </TouchableOpacity>
       </View>
+       <GenericModal
+        visible={visible}
+        title="Inspection Completed Please enter remarks"
+        onHandleCancel={() => setVisible(false)}
+        onHandleSubmit={saveInspectionData}
+      >
+        <TextInput
+          placeholder="Remarks"
+          value={remarks}
+          onChangeText={setRemarks}
+          keyboardType="email-address"
+          className="border border-gray-300 rounded-xl px-4 py-3 bg-white text-gray-800"
+        />
+      </GenericModal>
     </ScrollView>
     </SafeAreaView>
   );

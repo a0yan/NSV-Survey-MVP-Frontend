@@ -1,19 +1,19 @@
-import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  FlatList,
-  ListRenderItemInfo,
-} from "react-native";
-import { Picker } from "@react-native-picker/picker";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useProject } from "@/hooks/useProject";
 import { PIU, Project, RO } from "@/context/ProjectContext";
 import { useApi } from "@/hooks/useApi";
+import { useProject } from "@/hooks/useProject";
 import { GeneralMetaResponse } from "@/interface/GeneraMetaResponse";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Picker } from "@react-native-picker/picker";
 import { useRouter } from "expo-router";
+import React, { useEffect } from "react";
+import {
+  FlatList,
+  ListRenderItemInfo,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 
 const SelectProject = () => {
@@ -35,7 +35,8 @@ const SelectProject = () => {
     setProjects,
     setLoading,
     isProjectActive,
-    activeProject
+    activeProject,
+    setSurveyStartTime
   } = useProject();
 
   useEffect(() => {
@@ -120,6 +121,11 @@ const SelectProject = () => {
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const year = date.getFullYear();
     return `${day}-${month}-${year}`;
+  };
+  const startSurvey = () => {
+  
+    setSurveyStartTime(Date.now());
+    router.push("/(dashboard)/LiveSurvey");
   };
 
   const renderItem = ({ item }: ListRenderItemInfo<Project>) => (
@@ -251,7 +257,7 @@ const SelectProject = () => {
         <View className="flex-row justify-center items-center mt-4 mb-8 w-full space-x-4 gap-3">
           <TouchableOpacity
             className="flex-1 bg-blue-600 rounded-lg py-3 items-center"
-            onPress={() => router.push("/(dashboard)/LiveSurvey")} // Replace with your actual route
+            onPress={() => startSurvey()}
           >
             <Text className="text-white text-base font-bold tracking-wide">
               Start Live Survey
