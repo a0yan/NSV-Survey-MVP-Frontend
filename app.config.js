@@ -1,9 +1,9 @@
 import 'dotenv/config'; // This line ensures dotenv is loaded for local development
 export default {
   "expo": {
-    "name": "NSV-Survey-MVP-Frontend",
+    "name": "NSV-Survey",
     "slug": "NSV-Survey-MVP-Frontend",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "nsvsurveymvpfrontend",
@@ -11,7 +11,7 @@ export default {
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.a0yan.NSVSurveyMVPFrontend"
+      "bundleIdentifier": "com.NSVSurveyMVPFrontend"
     },
     "android": {
       "adaptiveIcon": {
@@ -19,10 +19,10 @@ export default {
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.a0yan.NSVSurveyMVPFrontend",
+      "package": "com.NSVSurveyMVPFrontend",
       "config": {
         "googleMaps": {
-          "apiKey": process.env.EXPO_PUBLIC_GOOGLE_API_KEY || ""
+          "apiKey": "AIzaSyAM0D9JCiLGTFWkOFHVrjmrz_SJcnOa7vo"
         }
       }
     },
@@ -32,17 +32,25 @@ export default {
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "expo-router",
-      [
-        "expo-splash-screen",
-        {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
-        }
-      ]
-    ],
+  "expo-router",
+  [
+    "expo-splash-screen",
+    {
+      "image": "./assets/images/splash-icon.png",
+      "imageWidth": 200,
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    }
+  ],
+  [
+    "expo-camera",
+    {
+      "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
+      "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
+      "recordAudioAndroid": true
+    }
+  ]
+],
     "experiments": {
       "typedRoutes": true
     },

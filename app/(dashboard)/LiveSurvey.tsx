@@ -110,8 +110,8 @@ const LiveGPSSurveyScreen = () => {
       .post("/nsv/distresses/distress-data", {
         // latitude: "80.034367",
         // longitude: "20.827996",
-        latitude: location.latitude.toString(),
-        longitude: location.longitude.toString(),
+        latitude: liveLocation.latitude.toString(),
+        longitude: liveLocation.longitude.toString(),
         project_id: projectId,
       })
       .then((response: AxiosResponse<GeneralMetaResponse<DistressData[]>>) => {
@@ -254,16 +254,16 @@ const LiveGPSSurveyScreen = () => {
             <Text className="text-lg font-bold text-orange-600">
               {chainageData.chainageStart}
             </Text>
-            <Text className="text-xs text-gray-400">NH-44, Sector 15-16</Text>
+            {/* <Text className="text-xs text-gray-400">NH-44, Sector 15-16</Text> */}
           </View>
           <View className="items-end">
             <Text className="text-xs text-gray-400">END CHAINAGE</Text>
             <Text className="text-lg font-bold text-orange-600">
               {chainageData.chainageEnd}
             </Text>
-            <Text className="text-xs text-gray-400">
+            {/* <Text className="text-xs text-gray-400">
               {surveyData.nextChainage}
-            </Text>
+            </Text> */}
           </View>
         </View>
         {/* Survey Data Card */}

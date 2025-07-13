@@ -27,6 +27,7 @@ export const CameraScreen = ({ style }: Props) => {
   const [facing, setFacing] = useState<CameraType>("back");
   const [recording, setRecording] = useState(false);
   const [flash, setFlash] = useState<FlashMode>('off');
+  const [torch, setTorch] = useState<boolean>(false);
   const mode: CameraMode = "video";
   
   if (!permission) {
@@ -109,9 +110,15 @@ export const CameraScreen = ({ style }: Props) => {
 
   const toggleFlash = () => {
     setFlash((prev) => {
-      if (prev === 'off') return 'on';
+      if (prev === 'off'){
+        setTorch(true);
+        return 'on';
+      } 
       if (prev === 'on') return 'auto';
-      if (prev === 'auto') return 'off';
+      if (prev === 'auto'){
+        setTorch(false);
+        return 'off';
+      } 
       return 'off'; // Fallback to 'off' if none match
     });
   };
@@ -147,14 +154,14 @@ export const CameraScreen = ({ style }: Props) => {
         mute={false}
         flash={flash}
         videoQuality="1080p"
+        enableTorch={torch}
         responsiveOrientationWhenOrientationLocked
       >
-        <View style={styles.timer}>
+        {/* <View style={styles.timer}>
           <Text style={{ color: "white" }}>
-            {/* {new Date().toLocaleTimeString()} */}
             {new Date().getSeconds().toString().padStart(2, '0')}
           </Text>
-        </View>
+        </View> */}
 
         <View style={styles.shutterContainer}>
           {/* <Pressable onPress={toggleMode}>
