@@ -14,6 +14,7 @@ import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import * as MediaLibrary from 'expo-media-library';
 // import Fontisto from '@expo/vector-icons/Fontisto';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { FFmpegKit } from 'ffmpeg-kit-react-native';
 
 type Props = {
   style?: ViewStyle;
@@ -48,6 +49,43 @@ export const CameraScreen = ({ style }: Props) => {
   //   setUri(photo?.uri);
   // };
 
+  // const addOverlayText = async (inputUri: string, outputUri: string) => {
+  //   const command = `-i ${inputUri} -vf drawtext="text='Hello Data':fontcolor=white:fontsize=24:x=10:y=H-th-10" -codec:a copy ${outputUri}`;
+  //   console.log("FFmpeg command:", command);
+  //   const session = await FFmpegKit.execute(command);
+  //   console.log('Overlay result:', await session.getOutput());
+  // };
+
+  const uploadVideo = async (uri: string) => {
+    const formData = new FormData();
+    formData.append("video", {
+      uri,
+      type: "video/mp4",
+      name: "upload.mp4",
+    } as any);
+
+    console.log("Uploading video with FormData:", formData);
+    
+
+    // const res = await fetch("http://192.168.29.193:5000/upload", {
+    // const res = await fetch("http://192.168.29.193:5000/add-text", {
+    const res = await fetch("http://192.168.29.193:5000/overlay-table-image", {
+      method: "POST",
+      body: formData
+    });
+
+    console.log("Upload response:", res);
+
+    if (res.ok) {
+      const blob = await res.blob();
+      const localUrl = URL.createObjectURL(blob);
+      console.log("Processed video URL:", localUrl);
+    } else {
+      console.error("Upload failed", await res.text());
+    }
+  };
+
+
   const recordVideo = async () => {
     if (recording) {
       setRecording(false);
@@ -61,7 +99,12 @@ export const CameraScreen = ({ style }: Props) => {
     if (video?.uri) {
       const asset = await MediaLibrary.createAssetAsync(video.uri);
       await MediaLibrary.createAlbumAsync('MyAppVideos', asset, false);
-    }
+      
+      // Generate overlay output path
+      await uploadVideo(video.uri);
+      console.log("Video uploaded successfully!");
+      
+      }
   };
 
   const toggleFlash = () => {
@@ -106,6 +149,13 @@ export const CameraScreen = ({ style }: Props) => {
         videoQuality="1080p"
         responsiveOrientationWhenOrientationLocked
       >
+        <View style={styles.timer}>
+          <Text style={{ color: "white" }}>
+            {/* {new Date().toLocaleTimeString()} */}
+            {new Date().getSeconds().toString().padStart(2, '0')}
+          </Text>
+        </View>
+
         <View style={styles.shutterContainer}>
           {/* <Pressable onPress={toggleMode}>
             {mode === "picture" ? (
@@ -174,6 +224,15 @@ const styles = StyleSheet.create({
   camera: {
     flex: 1,
     width: "100%",
+  },
+  timer:{
+    position: 'absolute',
+    top: 40,
+    right: 20,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
   },
   shutterContainer: {
     position: "absolute",
