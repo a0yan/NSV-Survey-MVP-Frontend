@@ -7,6 +7,7 @@ interface GenericModalProps {
   onHandleCancel: () => void;
   title?: string;
   children?: React.ReactNode;
+    isSubmitDisabled?: boolean; // 👈 Add this
 }
 
 const GenericModal: React.FC<GenericModalProps> = ({
@@ -15,6 +16,7 @@ const GenericModal: React.FC<GenericModalProps> = ({
   onHandleCancel,
   title = 'Enter Information',
   children,
+  isSubmitDisabled = false, // 👈 Default to false
 }) => {
   return (
     <Modal
@@ -46,7 +48,8 @@ const GenericModal: React.FC<GenericModalProps> = ({
 
             <TouchableOpacity
               onPress={onHandleSubmit}
-              className="flex-1 py-3 rounded-xl bg-blue-600 ml-2"
+              className="flex-1 py-3 rounded-xl bg-blue-600 ml-2 disabled:bg-blue-300"
+              disabled={isSubmitDisabled} // 👈 Add this
             >
               <Text className="text-center text-white font-medium">Submit</Text>
             </TouchableOpacity>

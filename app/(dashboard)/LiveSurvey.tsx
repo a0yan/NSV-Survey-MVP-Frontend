@@ -7,11 +7,12 @@ import { useProject } from "@/hooks/useProject";
 import { DistressData } from "@/interface/DistressData";
 import { GeneralMetaResponse } from "@/interface/GeneraMetaResponse";
 import { Ionicons } from "@expo/vector-icons";
+import PolylineDecoder from '@mapbox/polyline';
 import { AxiosResponse } from "axios";
 import { router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
-import MapView, { Marker } from "react-native-maps";
+import MapView, { LatLng, Marker, Polyline } from "react-native-maps";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { CameraScreen } from "../component/CameraView"; // Adjust the import path as needed
 
@@ -42,6 +43,7 @@ const LiveGPSSurveyScreen = () => {
   const liveLocation = useLiveLocation();
   const { project ,surveyStartTime,isProjectActive,flushProjectContext} = useProject();
     const [showCamera, setShowCamera] = useState(false);
+      const [routeCoords, setRouteCoords] = useState<LatLng[]>([]);
 
   const projectId = project?.id || ""; // Get project ID from context or set to empty string if not available
   // const projectId = "1ee51074-afe0-4300-bb03-ea34afdee412"; // Replace with actual project ID if needed
@@ -60,6 +62,10 @@ const LiveGPSSurveyScreen = () => {
   const [remarks, setRemarks] = useState("");
   const [visible, setVisible] = useState(false); // State to control modal visibility
   const [isLeft, setIsLeft] = useState(true); // State to track selected lane (left or right)
+  const [startLatLong, setStartLatLong] = useState<LatLng >({latitude: 0, longitude: 0});
+  const [endLatLong, setEndLatLong] = useState<LatLng>({latitude: 0, longitude: 0});
+
+
   const checkLocationLoaded = () => {
     let loaded =
       location === undefined || location === null || location.latitude === 0
@@ -150,7 +156,6 @@ const saveInspectionData=()=>{
         project_id: projectId,
       })
       .then((response: AxiosResponse<GeneralMetaResponse<DistressData[]>>) => {
-        console.log("Distress data sent successfully:", response);
 
         setDistressData(response.data.data || []);
         if (response.data.data.length > 0) {
@@ -196,33 +201,56 @@ const saveInspectionData=()=>{
       .catch((err) => {
         console.error("Failed to fetch active lanes:", err.message);
       });
+      
+      axios.get<GeneralMetaResponse<any>>(
+        `/nsv/distresses/project-full-distress`, // base endpoint
+        { params:{ project_id: projectId } } // query param
+      )
+      .then((res) => {
+        console.log(res.data);
+        
+        if (res.data.data&&res.data.data.length > 0) {
+          const startCoords = {latitude: res.data.data[0].start_lat, longitude: res.data.data[0].start_long};
+          const endCoords = {latitude: res.data.data[0].end_lat, longitude: res.data.data[0].end_long};
+          console.log("Start Coordinates:", startCoords);
+          console.log("End Coordinates:", endCoords);
+          setStartLatLong(startCoords);
+          setEndLatLong(endCoords);
+          fetchRoute(startCoords, endCoords);
+      
+          
+        } else {
+          console.warn("No survey start data found");
+        }
+      })
   }, [projectId]);
+  useEffect(() => {
+  console.log("Updated End:", endLatLong);
+console.log("Updated Start:", startLatLong);
+}, [endLatLong,startLatLong]);
 
-  // Example survey data
-  const surveyData = {
-    chainage: "CH 12+450",
-    nextChainage: "CH 12+475",
-    distanceToNext: "25.8m",
-    roadWidth: "12.5m",
-    shoulderWidth: "2.0m",
-    surfaceType: "Bituminous",
-    condition: "Good",
-    lastUpdated: "Today, 2:45 PM",
-    observations: [
-      {
-        icon: "alert-circle-outline",
-        label: "Pothole detected",
-        time: "1 min ago",
-        chainage: "CH 12+456",
-      },
-      {
-        icon: "water-outline",
-        label: "Drainage check",
-        time: "2 min ago",
-        chainage: "CH 12+450",
-      },
-    ],
-  };
+  const fetchRoute = async (start:LatLng,end:LatLng) => {
+      const apiKey = process.env.EXPO_PUBLIC_GOOGLE_API_KEY; // Use your actual API key here
+      console.log(apiKey);
+      
+      const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${start.latitude},${start.longitude}&destination=${end.latitude},${end.longitude}&key=${apiKey}`;
+
+      const res = await fetch(url);
+      const data = await res.json();
+      console.log(data);
+      
+      if (data.routes.length) {
+        const points = data.routes[0].overview_polyline.points;
+        const coords = PolylineDecoder.decode(points).map(([lat, lng]) => ({
+          latitude: lat,
+          longitude: lng,
+        }));
+        console.log(coords);
+        
+        setRouteCoords(coords);
+      }
+    };
+
 
   return (
     <SafeAreaView className="flex-1 bg-[#f4f8ff]">
@@ -268,8 +296,19 @@ const saveInspectionData=()=>{
             showsMyLocationButton
             zoomControlEnabled
             showsTraffic
+            followsUserLocation
           >
-            <Marker coordinate={location} />
+            {/* {startLatLong.latitude !== 0 && startLatLong.longitude !== 0 && ( */}
+              <Marker pinColor="green" coordinate={startLatLong} title="Start" />
+              <Marker pinColor="red" coordinate={endLatLong} title="End" />
+            {startLatLong.latitude !== 0 && startLatLong.longitude !== 0 &&
+              endLatLong.latitude !== 0 && endLatLong.longitude !== 0 && (
+                <Polyline
+                  coordinates={routeCoords}
+                  strokeColor="#0a84ff"
+                  strokeWidth={4}
+                />
+            )}
           </MapView>
         </View>
         <View className="flex-row justify-between px-4 mb-2">
@@ -395,6 +434,7 @@ const saveInspectionData=()=>{
         title="Inspection Completed Please enter remarks"
         onHandleCancel={() => setVisible(false)}
         onHandleSubmit={saveInspectionData}
+        isSubmitDisabled={remarks.trim() === ""} // Disable if remarks are empty
       >
         <TextInput
           placeholder="Remarks"
