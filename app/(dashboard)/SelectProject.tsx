@@ -168,7 +168,7 @@ const SelectProject = () => {
       <Text className="text-xl mb-1 font-extrabold text-[#1f2937]">Select Regional Office</Text>
       <View className="bg-white rounded-xl mb-4 shadow-sm">
         <Picker
-          selectedValue={ro?.id || ""}
+          selectedValue={ro?.id ?? ""}
           onValueChange={(value: string) => {
             const selected = ros.find((r) => r.id === value) || null;
             setRo(selected);
@@ -189,7 +189,7 @@ const SelectProject = () => {
           <Text className="text-xl mb-1 font-extrabold text-[#1f2937]">Select PIU</Text>
           <View className="bg-white rounded-xl mb-4 shadow-sm">
             <Picker
-              selectedValue={piu?.id || ""}
+              selectedValue={piu?.id ?? ""}
               onValueChange={(value: string) => {
                 const selected = pius.find((p) => p.id === value) || null;
                 setPiu(selected);
@@ -197,7 +197,7 @@ const SelectProject = () => {
             >
               <Picker.Item label="-- Choose PIU --" value="" />
               {pius.map((piu) => (
-                <Picker.Item key={piu.id} label={piu.piu_name} value={piu.id} />
+                <Picker.Item key={piu.id} style={{color:'black'}} label={piu.piu_name} value={piu.id} />
               ))}
             </Picker>
           </View>

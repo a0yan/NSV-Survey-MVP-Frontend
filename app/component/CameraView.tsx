@@ -14,7 +14,7 @@ import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import * as MediaLibrary from 'expo-media-library';
 // import Fontisto from '@expo/vector-icons/Fontisto';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { FFmpegKit } from 'ffmpeg-kit-react-native';
+// import { FFmpegKit } from 'ffmpeg-kit-react-native';
 
 type Props = {
   style?: ViewStyle;
@@ -70,20 +70,20 @@ export const CameraScreen = ({ style }: Props) => {
 
     // const res = await fetch("http://192.168.29.193:5000/upload", {
     // const res = await fetch("http://192.168.29.193:5000/add-text", {
-    const res = await fetch("http://192.168.29.193:5000/overlay-table-image", {
-      method: "POST",
-      body: formData
-    });
+    // const res = await fetch("http://192.168.29.193:5000/overlay-table-image", {
+    //   method: "POST",
+    //   body: formData
+    // });
 
-    console.log("Upload response:", res);
+    // console.log("Upload response:", res);
 
-    if (res.ok) {
-      const blob = await res.blob();
-      const localUrl = URL.createObjectURL(blob);
-      console.log("Processed video URL:", localUrl);
-    } else {
-      console.error("Upload failed", await res.text());
-    }
+    // if (res.ok) {
+    //   const blob = await res.blob();
+    //   const localUrl = URL.createObjectURL(blob);
+    //   console.log("Processed video URL:", localUrl);
+    // } else {
+    //   console.error("Upload failed", await res.text());
+    // }
   };
 
 
