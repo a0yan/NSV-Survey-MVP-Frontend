@@ -1,11 +1,11 @@
 import 'dotenv/config'; // This line ensures dotenv is loaded for local development
 export default {
   "expo": {
-    "name": "NSV-Survey",
+    "name": "Road Pulse",
     "slug": "NSV-Survey-MVP-Frontend",
     "version": "1.0.1",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/icon_1.png",
     "scheme": "nsvsurveymvpfrontend",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
