@@ -37,6 +37,7 @@ const ViewReport = () => {
 
   useEffect(() => {
     const fetchInspections = async () => {
+      console
       try {
         const response =  await axios.get(
           '/nsv/inspections/prev-inspection-data',

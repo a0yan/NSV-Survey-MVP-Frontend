@@ -1,7 +1,5 @@
-import { useApi } from "@/hooks/useApi";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import axios from "axios";
-import { createContext, use, useEffect, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 
 type ProjectContextType = {
   project: Project | null;
@@ -21,6 +19,9 @@ type ProjectContextType = {
   setPIUs: (pius: PIU[]) => void;
   loading: boolean;
   setLoading: (loading: boolean) => void;
+  surveyStartTime: number | null;
+  setSurveyStartTime: (time: number | null) => void;
+  flushProjectContext: () => void;
   // selectProject: (project: Project) => void;
 };
 
@@ -83,6 +84,7 @@ export const ProjectProvider = ({
   const [pius, setPIUs] = useState<PIU[]>([]);
   const [piu, setPiu] = useState<PIU | null>(null);
   const [loading, setLoading] = useState(true);
+  const [surveyStartTime, setSurveyStartTime] = useState<number | null>(null);
 
 
   const activeProject = (active: boolean) => {
@@ -154,6 +156,7 @@ export const ProjectProvider = ({
           .catch((error) => {
             console.error("Error removing isProjectActivate from storage", error);
           });
+          AsyncStorage.setItem("surveyStartTime", JSON.stringify(surveyStartTime))
 
           // setPiu(null);
           // setProject(null)
@@ -200,17 +203,19 @@ export const ProjectProvider = ({
 
   const fetchStoredProject = async () => {
     try {
-      const [isActive, proj, storedRo, storedPiu] = await Promise.all([
+      const [isActive, proj, storedRo, storedPiu,surveyStartTime] = await Promise.all([
         AsyncStorage.getItem("isProjectActivate"),
         AsyncStorage.getItem("project"),
         AsyncStorage.getItem("ro"),
         AsyncStorage.getItem("piu"),
+        AsyncStorage.getItem("surveyStartTime")
       ]);
 
       if (proj) setProject(JSON.parse(proj));
       if (storedRo) setRo(JSON.parse(storedRo));
       if (storedPiu) setPiu(JSON.parse(storedPiu));
       if (isActive) setIsProjectActive(JSON.parse(isActive));
+      if (surveyStartTime) setSurveyStartTime(JSON.parse(surveyStartTime));
       // setIsProjectActive(isActive === "true");
 
       console.log("Fetched stored project state", {
@@ -223,6 +228,24 @@ export const ProjectProvider = ({
       console.error("Error fetching from AsyncStorage:", error);
     }
   };
+
+  //TODO: Add Flush Project Functionality
+
+  const flushProjectContext = () => {
+        AsyncStorage.removeItem("isProjectActivate"),
+        AsyncStorage.removeItem("project"),
+        AsyncStorage.removeItem("ro"),
+        AsyncStorage.removeItem("piu"),
+        AsyncStorage.removeItem("surveyStartTime"),
+        AsyncStorage.removeItem("project"),
+        setProject(null);
+        setRo(null);
+        setPiu(null);
+        setPIUs([]);
+        setProjects([]);
+        setSurveyStartTime(null);
+        setIsProjectActive(false);
+  }
 
   useEffect(() => {
     fetchStoredProject();
@@ -256,7 +279,10 @@ export const ProjectProvider = ({
         setLoading,
         loading,
         isProjectActive,
-        activeProject
+        activeProject,
+        surveyStartTime,
+        setSurveyStartTime,
+        flushProjectContext
       }}
     >
       {children}

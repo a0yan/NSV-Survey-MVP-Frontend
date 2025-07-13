@@ -1,3 +1,4 @@
+import GenericModal from "@/components/ui/Modal";
 import Table, { TableColumn } from "@/components/ui/Table";
 import ToggleButton from "@/components/ui/Toggle";
 import { useApi } from "@/hooks/useApi";
@@ -7,8 +8,9 @@ import { DistressData } from "@/interface/DistressData";
 import { GeneralMetaResponse } from "@/interface/GeneraMetaResponse";
 import { Ionicons } from "@expo/vector-icons";
 import { AxiosResponse } from "axios";
+import { router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { CameraScreen } from "../component/CameraView"; // Adjust the import path as needed
@@ -38,9 +40,8 @@ const LiveGPSSurveyScreen = () => {
     useState<ActiveLaneResponse | null>(null);
 
   const liveLocation = useLiveLocation();
-  const { project, isProjectActive } = useProject();
-
-  const [showCamera, setShowCamera] = useState(false);
+  const { project ,surveyStartTime,isProjectActive,flushProjectContext} = useProject();
+    const [showCamera, setShowCamera] = useState(false);
 
   const projectId = project?.id || ""; // Get project ID from context or set to empty string if not available
   // const projectId = "1ee51074-afe0-4300-bb03-ea34afdee412"; // Replace with actual project ID if needed
@@ -56,6 +57,8 @@ const LiveGPSSurveyScreen = () => {
     latitudeDelta: 0.005,
     longitudeDelta: 0.005,
   });
+  const [remarks, setRemarks] = useState("");
+  const [visible, setVisible] = useState(false); // State to control modal visibility
   const [isLeft, setIsLeft] = useState(true); // State to track selected lane (left or right)
   const checkLocationLoaded = () => {
     let loaded =
@@ -85,15 +88,47 @@ const LiveGPSSurveyScreen = () => {
     });
   }, [distressData, activeLanes]);
 
-  const distressColumns: TableColumn<DistressRow>[] = useMemo(() => {
-    return [
-      { key: "label", label: "Distress Type" },
-      ...activeLanes.map((lane) => ({
-        key: lane,
-        label: lane,
-      })),
-    ];
-  }, [activeLanes]);
+const distressColumns: TableColumn<DistressRow>[] = useMemo(() => {
+  return [
+    { key: 'label', label: 'Distress Type' },
+    ...activeLanes.map((lane) => ({
+      key: lane,
+      label: lane,
+    })),
+  ];
+}, [activeLanes]);
+
+const toggleModal = () => {
+  console.log("Toggling modal visibility");
+  setVisible(true)
+}
+
+const saveInspectionData=()=>{
+  const endEpoch = Date.now();
+  const durationEpoch=surveyStartTime==null?0:endEpoch-surveyStartTime;
+  const duration=new Date(durationEpoch).toISOString().substr(11, 8); // Format duration as HH:MM:SS
+  const data={
+    inspection_date: String(Date.now()),
+    remarks:remarks,
+    duration:duration
+
+  }
+  setRemarks("");
+  setVisible(false);
+  axios.post("/nsv/inspections/add-inspection",data,{params: { project_id: projectId }})
+  .then((res) => {
+      flushProjectContext();
+    console.log("Inspection data saved successfully" + res.data);
+    router.navigate("/(dashboard)/SelectProject");
+  })
+  .catch((error) => {
+    console.error("Error saving inspection data:", error);
+  });
+}
+
+
+
+
 
   // Update location state when liveLocation changes
   useEffect(() => {
@@ -332,32 +367,46 @@ const LiveGPSSurveyScreen = () => {
           </View>
         ))}
       </View> */}
-        {/* Add New Observation Button */}
-        <TouchableOpacity className="bg-green-600 rounded-lg mx-4 mt-4 py-3 items-center">
-          <Text className="text-white text-base font-bold">
-            + Add New Observation
+      {/* Add New Observation Button */}
+      <TouchableOpacity onPress={() => toggleModal()} className="bg-red-500 rounded-lg mx-4 mt-4 py-3 items-center">
+        <Text className="text-white text-base font-bold">
+          Stop Inspection
+        </Text>
+      </TouchableOpacity>
+      {/* Action Buttons */}
+      <View className="flex-row mx-4 mt-3 mb-6 gap-2">
+        <TouchableOpacity className="flex-1 flex-row items-center justify-center bg-white rounded-lg py-3"
+                    onPress={() => setShowCamera(true)}
+>
+          <Ionicons name="camera-outline" size={18} color="#22223b" />
+          <Text className="ml-2 text-base font-medium text-gray-700">
+            Take Video
           </Text>
         </TouchableOpacity>
-        {/* Action Buttons */}
-        <View className="flex-row mx-4 mt-3 mb-6 gap-2">
-          <TouchableOpacity
-            className="flex-1 flex-row items-center justify-center bg-white rounded-lg py-3"
-            onPress={() => setShowCamera(true)}
-          >
-            <Ionicons name="camera-outline" size={18} color="#22223b" />
-            <Text className="ml-2 text-base font-medium text-gray-700">
-              Take Photo
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity className="flex-1 flex-row items-center justify-center bg-white rounded-lg py-3">
-            <Ionicons name="cloud-upload-outline" size={18} color="#22223b" />
-            <Text className="ml-2 text-base font-medium text-gray-700">
-              Sync Data
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+        <TouchableOpacity className="flex-1 flex-row items-center justify-center bg-white rounded-lg py-3">
+          <Ionicons name="cloud-upload-outline" size={18} color="#22223b" />
+          <Text className="ml-2 text-base font-medium text-gray-700">
+            Sync Data
+          </Text>
+        </TouchableOpacity>
+      </View>
+       <GenericModal
+        visible={visible}
+        title="Inspection Completed Please enter remarks"
+        onHandleCancel={() => setVisible(false)}
+        onHandleSubmit={saveInspectionData}
+      >
+        <TextInput
+          placeholder="Remarks"
+          value={remarks}
+          onChangeText={setRemarks}
+          keyboardType="email-address"
+          className="border border-gray-300 rounded-xl px-4 py-3 bg-white text-gray-800"
+        />
+      </GenericModal>
+    </ScrollView>
     </SafeAreaView>
   );
 };
 export default LiveGPSSurveyScreen;
+
