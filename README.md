@@ -87,3 +87,4 @@ Offline form queue & sync
 👨‍💻 Developed By
 
 Ayan Shrivastava & Harshal Bharatkar
+Built with ♥️ to digitize highway inspections and improve road safety.
