@@ -21,6 +21,7 @@ type ProjectContextType = {
   setLoading: (loading: boolean) => void;
   surveyStartTime: number | null;
   setSurveyStartTime: (time: number | null) => void;
+  flushProjectContext: () => void;
   // selectProject: (project: Project) => void;
 };
 
@@ -230,6 +231,22 @@ export const ProjectProvider = ({
 
   //TODO: Add Flush Project Functionality
 
+  const flushProjectContext = () => {
+        AsyncStorage.removeItem("isProjectActivate"),
+        AsyncStorage.removeItem("project"),
+        AsyncStorage.removeItem("ro"),
+        AsyncStorage.removeItem("piu"),
+        AsyncStorage.removeItem("surveyStartTime"),
+        AsyncStorage.removeItem("project"),
+        setProject(null);
+        setRo(null);
+        setPiu(null);
+        setPIUs([]);
+        setProjects([]);
+        setSurveyStartTime(null);
+        setIsProjectActive(false);
+  }
+
   useEffect(() => {
     fetchStoredProject();
   }, []);
@@ -264,7 +281,8 @@ export const ProjectProvider = ({
         isProjectActive,
         activeProject,
         surveyStartTime,
-        setSurveyStartTime
+        setSurveyStartTime,
+        flushProjectContext
       }}
     >
       {children}

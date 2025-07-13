@@ -38,7 +38,7 @@ const LiveGPSSurveyScreen = () => {
   const [activeLanesMap, setActiveLanesMap] = useState<ActiveLaneResponse | null>(null);
 
   const liveLocation = useLiveLocation();
-  const { project ,surveyStartTime,isProjectActive} = useProject();
+  const { project ,surveyStartTime,isProjectActive,flushProjectContext} = useProject();
   
   const projectId = project?.id || ""; // Get project ID from context or set to empty string if not available
   // const projectId = "1ee51074-afe0-4300-bb03-ea34afdee412"; // Replace with actual project ID if needed
@@ -108,6 +108,7 @@ const saveInspectionData=()=>{
   setVisible(false);
   axios.post("/nsv/inspections/add-inspection",data,{params: { project_id: projectId }})
   .then((res) => {
+      flushProjectContext();
     console.log("Inspection data saved successfully" + res.data);
     router.navigate("/(dashboard)/SelectProject");
   })
@@ -377,3 +378,4 @@ const saveInspectionData=()=>{
   );
 };
 export default LiveGPSSurveyScreen;
+
