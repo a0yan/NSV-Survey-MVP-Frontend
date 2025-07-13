@@ -1,18 +1,29 @@
-import { Ionicons } from "@expo/vector-icons";
-import { router, Tabs } from "expo-router";
-import { View } from "react-native";
 import UserOnly from "@/components/auth/UserOnly";
 import { ProjectProvider } from "@/context/ProjectContext";
 import { useProject } from '@/hooks/useProject';
+import { Ionicons } from "@expo/vector-icons";
+import { router, Tabs } from "expo-router";
+import { useEffect } from "react";
+import { View } from "react-native";
 
 function DashboardTabs() {
-  const { isProjectActive } = useProject();
-  console.log("DashboardLayout isProjectActive:", isProjectActive);
+  const { isProjectActive,surveyStartTime} = useProject();
+
+  useEffect(() => {
+  const checkRoute = async () => {
+  const defaultRoute = surveyStartTime!=null ? "LiveSurvey" : "SelectProject";
+  console.log("Survey start time:", surveyStartTime);
+  console.log("Default route:", defaultRoute);
+
+    router.replace(`/(dashboard)/${defaultRoute}`);
+  };
+
+  checkRoute();
+}, [surveyStartTime]);
 
   return (
     <View style={{ flex: 1, backgroundColor: "#f4f8ff"}}>
       <Tabs
-        initialRouteName="SelectProject"
         screenOptions={({ route }) => ({
           // tabBarIcon: ({ color, size }) => {
           //   let iconName: keyof typeof Ionicons.glyphMap = "ellipse";
@@ -58,6 +69,15 @@ function DashboardTabs() {
         <Tabs.Screen
           name="SelectProject"
           options={{ title: "Select Project", headerShown: false }}
+          listeners={{
+            tabPress: (e) => {
+              if (surveyStartTime) {
+                e.preventDefault();
+                alert("Please end the inspection first.");
+                router.push("/(dashboard)/LiveSurvey");
+              }
+            },
+          }}
         />
         <Tabs.Screen
           name="LiveSurvey"
@@ -69,13 +89,13 @@ function DashboardTabs() {
                 alert("Please activate a project first.");
                 router.push("/(dashboard)/SelectProject");
               }
-            },
-          }}
+              else if (surveyStartTime==null) {
+                  e.preventDefault();
+                alert("Please start the inspection first.");
+                router.push("/(dashboard)/SelectProject");
+            }
+          }}}
           />
-        <Tabs.Screen
-          name="Profile"
-          options={{ title: "Profile", headerShown: false }}
-        />
         <Tabs.Screen
           name="ViewReport"
           options={{ title: "View Report", headerShown: false }}
@@ -85,6 +105,19 @@ function DashboardTabs() {
                 e.preventDefault();
                 alert("Please activate a project first.");
                 router.push("/(dashboard)/SelectProject");
+              }
+            },
+          }}
+        />
+        <Tabs.Screen
+          name="Profile"
+          options={{ title: "Profile", headerShown: false }}
+          listeners={{
+            tabPress: (e) => {
+              if (surveyStartTime) {
+                e.preventDefault();
+                alert("Please end the inspection first.");
+                router.push("/(dashboard)/LiveSurvey");
               }
             },
           }}

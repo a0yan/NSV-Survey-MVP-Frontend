@@ -15,6 +15,7 @@ import { ScrollView, Text, TextInput, TouchableOpacity, View } from "react-nativ
 import MapView, { LatLng, Marker, Polyline } from "react-native-maps";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { CameraScreen } from "../component/CameraView"; // Adjust the import path as needed
+import Loader from "@/components/ui/Loader";
 
 const baseKeys = [
   { key: "roughness_bi", label: "Roughness" },
@@ -41,7 +42,7 @@ const LiveGPSSurveyScreen = () => {
     useState<ActiveLaneResponse | null>(null);
 
   const liveLocation = useLiveLocation();
-  const { project ,surveyStartTime,isProjectActive,flushProjectContext} = useProject();
+  const { project ,surveyStartTime,isProjectActive,flushProjectContext,loading,setLoading} = useProject();
     const [showCamera, setShowCamera] = useState(false);
       const [routeCoords, setRouteCoords] = useState<LatLng[]>([]);
 
@@ -147,6 +148,7 @@ const saveInspectionData=()=>{
       latitudeDelta: 0.005,
       longitudeDelta: 0.005,
     });
+    // setLoading(true);
     axios
       .post("/nsv/distresses/distress-data", {
         // latitude: "80.034367",
@@ -212,8 +214,6 @@ const saveInspectionData=()=>{
         if (res.data.data&&res.data.data.length > 0) {
           const startCoords = {latitude: res.data.data[0].start_lat, longitude: res.data.data[0].start_long};
           const endCoords = {latitude: res.data.data[0].end_lat, longitude: res.data.data[0].end_long};
-          console.log("Start Coordinates:", startCoords);
-          console.log("End Coordinates:", endCoords);
           setStartLatLong(startCoords);
           setEndLatLong(endCoords);
           fetchRoute(startCoords, endCoords);
@@ -224,20 +224,14 @@ const saveInspectionData=()=>{
         }
       })
   }, [projectId]);
-  useEffect(() => {
-  console.log("Updated End:", endLatLong);
-console.log("Updated Start:", startLatLong);
-}, [endLatLong,startLatLong]);
 
   const fetchRoute = async (start:LatLng,end:LatLng) => {
       const apiKey = process.env.EXPO_PUBLIC_GOOGLE_API_KEY; // Use your actual API key here
-      console.log(apiKey);
       
       const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${start.latitude},${start.longitude}&destination=${end.latitude},${end.longitude}&key=${apiKey}`;
 
       const res = await fetch(url);
       const data = await res.json();
-      console.log(data);
       
       if (data.routes.length) {
         const points = data.routes[0].overview_polyline.points;
@@ -245,8 +239,6 @@ console.log("Updated Start:", startLatLong);
           latitude: lat,
           longitude: lng,
         }));
-        console.log(coords);
-        
         setRouteCoords(coords);
       }
     };
@@ -255,12 +247,13 @@ console.log("Updated Start:", startLatLong);
   return (
     <SafeAreaView className="flex-1 bg-[#f4f8ff]">
       {/* Camera */}
+      <Loader loading={loading}>
       {showCamera && (
         <View className="h-96 mx-4 my-2 rounded-xl overflow-hidden relative">
           <CameraScreen style={{ height: "100%" }} />
 
           <Text className="absolute top-2 left-2 text-red-600 text-lg font-semibold">
-            Live Survey
+            Live Inspection
           </Text>
 
           <TouchableOpacity
@@ -274,7 +267,7 @@ console.log("Updated Start:", startLatLong);
       <ScrollView className="flex-1 bg-[#f4f8ff]">
         {/* Header */}
         <View className="flex-row items-center justify-between px-4 pt-6 pb-2">
-          <Text className="text-lg font-semibold">Live GPS Survey</Text>
+          <Text className="text-lg font-semibold">Live GPS Inspection</Text>
           <View className="flex-row items-center">
             <Text
               className={`text-xs ${checkLocationLoaded() ? "text-green-600" : "text-red-600"} mr-2`}
@@ -299,13 +292,18 @@ console.log("Updated Start:", startLatLong);
             followsUserLocation
           >
             {/* {startLatLong.latitude !== 0 && startLatLong.longitude !== 0 && ( */}
-              <Marker pinColor="green" coordinate={startLatLong} title="Start" />
-              <Marker pinColor="red" coordinate={endLatLong} title="End" />
+              <Marker pinColor="green" coordinate={startLatLong} title="Start"
+              titleVisibility="visible"
+              >
+              </Marker>
+              <Marker pinColor="red" coordinate={endLatLong} title="End"
+                            titleVisibility="visible"
+ />
             {startLatLong.latitude !== 0 && startLatLong.longitude !== 0 &&
               endLatLong.latitude !== 0 && endLatLong.longitude !== 0 && (
                 <Polyline
                   coordinates={routeCoords}
-                  strokeColor="#0a84ff"
+                  strokeColor="rgba(51, 47, 49, 0.8)"
                   strokeWidth={4}
                 />
             )}
@@ -322,7 +320,7 @@ console.log("Updated Start:", startLatLong);
           </View>
         </View>
         {/* Chainage and Distance */}
-        <View className="flex-row justify-between items-center bg-white px-4 py-2">
+        <View className="flex-row justify-between items-center bg-white px-4 pt-1 pb-0">
           <View>
             <Text className="text-xs text-gray-400">START CHAINAGE</Text>
             <Text className="text-lg font-bold text-orange-600">
@@ -340,52 +338,12 @@ console.log("Updated Start:", startLatLong);
             </Text> */}
           </View>
         </View>
-        {/* Survey Data Card */}
-        {/* <View className="bg-gray-50 rounded-xl mx-4 mt-3 p-3">
-        <View className="flex-row justify-between items-center mb-2">
-          <Text className="font-medium text-gray-700">
-            Auto-fetched Survey Data
-          </Text>
-          <TouchableOpacity className="flex-row items-center px-2 py-0.5">
-            <Ionicons name="pencil-outline" size={16} color="#2563eb" />
-            <Text className="text-xs text-[#2563eb] ml-1">Edit</Text>
-          </TouchableOpacity>
-        </View>
-        <View className="flex-row justify-between mb-1">
-          <View>
-            <Text className="text-xs text-gray-400">ROAD WIDTH</Text>
-            <Text className="text-sm font-medium">{laneCodes.size}</Text>
-          </View>
-          <View>
-            <Text className="text-xs text-gray-400">SHOULDER WIDTH</Text>
-            <Text className="text-sm font-medium">
-              {surveyData.shoulderWidth}
-            </Text>
-          </View>
-        </View>
-        <View className="flex-row justify-between mb-1">
-          <View>
-            <Text className="text-xs text-gray-400">SURFACE TYPE</Text>
-            <Text className="text-sm font-medium">
-              {surveyData.surfaceType}
-            </Text>
-          </View>
-          <View>
-            <Text className="text-xs text-gray-400">CONDITION</Text>
-            <Text className="text-sm font-medium text-green-600">
-              {surveyData.condition}
-            </Text>
-          </View>
-        </View>
-        <Text className="text-xs text-gray-400 mt-1">LAST UPDATED</Text>
-        <Text className="text-xs text-gray-500">{surveyData.lastUpdated}</Text>
-      </View> */}
         {/* Toggle */}
-        <View>
-          <ToggleButton onToggle={(value) => setIsLeft(value)} />
+        <View className="my-0 py-0">
+          <ToggleButton  onToggle={(value) => setIsLeft(value)} />
         </View>
         {/* Distress Assessment Table Example */}
-        <View className="mx-4 mt-4 mb-2">
+        <View className="mx-4 mt-0 mb-1">
           {activeLanes.length !== 0 ? (
             <Table
               title="Distress Assessment"
@@ -406,15 +364,9 @@ console.log("Updated Start:", startLatLong);
           </View>
         ))}
       </View> */}
-      {/* Add New Observation Button */}
-      <TouchableOpacity onPress={() => toggleModal()} className="bg-red-500 rounded-lg mx-4 mt-4 py-3 items-center">
-        <Text className="text-white text-base font-bold">
-          Stop Inspection
-        </Text>
-      </TouchableOpacity>
-      {/* Action Buttons */}
-      <View className="flex-row mx-4 mt-3 mb-6 gap-2">
-        <TouchableOpacity className="flex-1 flex-row items-center justify-center bg-white rounded-lg py-3"
+       {/* Action Buttons */}
+      <View className="flex-row mx-4 mt-1 mb-2 gap-2">
+        <TouchableOpacity className="flex-1 flex-row items-center justify-center bg-white rounded-lg mt-4 mb-2 py-3"
                     onPress={() => setShowCamera(true)}
 >
           <Ionicons name="camera-outline" size={18} color="#22223b" />
@@ -422,13 +374,17 @@ console.log("Updated Start:", startLatLong);
             Take Video
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity className="flex-1 flex-row items-center justify-center bg-white rounded-lg py-3">
-          <Ionicons name="cloud-upload-outline" size={18} color="#22223b" />
-          <Text className="ml-2 text-base font-medium text-gray-700">
-            Sync Data
-          </Text>
-        </TouchableOpacity>
       </View>
+      {/* Add New Observation Button */}
+      <View className="flex-row mx-4 mb-2 gap-2">
+      <TouchableOpacity onPress={() => toggleModal()} className="flex-1 flex-row items-center justify-center bg-red-500 rounded-lg py-3  ">
+        <Ionicons name="stop-circle-outline" size={18} color="#fff" />
+        <Text className="px-2 text-white text-base font-bold">
+          Stop Inspection
+        </Text>
+      </TouchableOpacity>
+      </View>
+     
        <GenericModal
         visible={visible}
         title="Inspection Completed Please enter remarks"
@@ -445,8 +401,9 @@ console.log("Updated Start:", startLatLong);
         />
       </GenericModal>
     </ScrollView>
+          </Loader>
     </SafeAreaView>
   );
-};
+}
 export default LiveGPSSurveyScreen;
 

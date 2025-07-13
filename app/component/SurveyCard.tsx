@@ -29,9 +29,7 @@ const SurveyCard = ({ inspection }: Props) => {
   };
 
   const formatEpochDate = (epochStr: string | number) => {
-    console.log("formatEpochDate called with:", epochStr);
     const epoch=Number(epochStr);
-    console.log("Converted epoch to number:", epoch);
     if (isNaN(epoch)) return "—";
     const date = new Date(epoch);
     const day = String(date.getDate()).padStart(2, "0");

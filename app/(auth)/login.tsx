@@ -1,8 +1,10 @@
+import Footer from '@/components/ui/Footer';
+import Loader from '@/components/ui/Loader';
 import { useAuth } from '@/context/AuthContext';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, Pressable, Text, TextInput, TouchableOpacity, View, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { Alert, Keyboard, KeyboardAvoidingView, Platform, Pressable, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { twMerge } from 'tailwind-merge';
 
 
@@ -47,17 +49,18 @@ const LoginScreen = () => {
       className="flex-1 bg-[#f4f8ff]"
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
+      <Loader loading={loading}>
       <View className="flex-1 items-center justify-center bg-[#f4f8ff] p-4">
         <View className="items-center mb-8">
           <View className="bg-indigo-100 rounded-2xl w-16 h-16 items-center justify-center mb-3">
             <MaterialCommunityIcons name="road-variant" size={40} color="#2563eb" />
           </View>
-          <Text className="text-2xl font-bold text-[#22223b] mb-0.5">Highway Survey</Text>
-          <Text className="text-base text-gray-500 mb-2">Field Data Collection System</Text>
+          <Text className="text-2xl font-bold text-[#22223b] mb-0.5">Highway Inspection</Text>
+          <Text className="text-base text-gray-500 mb-2">NSV Data Inspection System</Text>
         </View>
         <View className="bg-white rounded-2xl p-6 w-[340px] shadow-md items-stretch">
           <Text className="text-xl font-bold text-[#22223b] mb-1 text-center">Welcome Back</Text>
-          <Text className="text-base text-gray-500 mb-4 text-center">Sign in to continue your survey work</Text>
+          <Text className="text-base text-gray-500 mb-4 text-center">Sign in to continue your inspection work</Text>
           <Text className="text-sm text-[#22223b] mb-1 mt-2 font-medium">Select Role</Text>
           <View className="flex-row justify-between mb-3 gap-2">
             {roles.map((r) => (
@@ -107,9 +110,6 @@ const LoginScreen = () => {
               <Ionicons name={showPassword ? 'eye-off-outline' : 'eye-outline'} size={20} color="#6b7280" />
             </TouchableOpacity>
           </View>
-          <TouchableOpacity className="self-end mb-2.5" onPress={() => Alert.alert('Forgot Password?')}>
-            <Text className="text-indigo-600 text-sm font-medium">Forgot Password?</Text>
-          </TouchableOpacity>
           <TouchableOpacity
             className="bg-indigo-600 rounded-lg py-3 items-center mt-2"
             onPress={handleLogin}
@@ -119,6 +119,8 @@ const LoginScreen = () => {
           </TouchableOpacity>
         </View>
       </View>
+      <Footer/>
+      </Loader>
     </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
   );

@@ -1,3 +1,4 @@
+import Loader from "@/components/ui/Loader";
 import { PIU, Project, RO } from "@/context/ProjectContext";
 import { useApi } from "@/hooks/useApi";
 import { useProject } from "@/hooks/useProject";
@@ -23,6 +24,7 @@ const SelectProject = () => {
   const {
     ros,
     ro,
+    loading,
     setRo,
     pius,
     piu,
@@ -36,7 +38,7 @@ const SelectProject = () => {
     setLoading,
     isProjectActive,
     activeProject,
-    setSurveyStartTime
+    setSurveyStartTimePersistant
   } = useProject();
 
   useEffect(() => {
@@ -52,6 +54,7 @@ const SelectProject = () => {
   }, [piu]);
 
   const fetchROs = async () => {
+    setLoading(true);
     try {
       const res = await axios.get<GeneralMetaResponse<RO[]>>("/nsv/master/ro-list");
       setROs(res.data?.data ?? []);
@@ -63,6 +66,7 @@ const SelectProject = () => {
   };
 
   const fetchPIUs = async (roId: string) => {
+    setLoading(true);
     try {
       const res = await axios.get<GeneralMetaResponse<PIU[]>>(
         `/nsv/master/piu-list?ro_id=${roId}`
@@ -76,6 +80,7 @@ const SelectProject = () => {
   };
 
   const fetchProjects = async (piuId: string) => {
+    setLoading(true);
     try {
       const res = await axios.get<GeneralMetaResponse<Project[]>>(
         `/nsv/master/project-list?piu_id=${piuId}`
@@ -124,7 +129,7 @@ const SelectProject = () => {
   };
   const startSurvey = () => {
   
-    setSurveyStartTime(Date.now());
+    setSurveyStartTimePersistant(Date.now());
     router.push("/(dashboard)/LiveSurvey");
   };
 
@@ -235,8 +240,8 @@ const SelectProject = () => {
             <Text className="text-xl font-extrabold text-[#1f2937]">
               Active Project Details:
             </Text>
-            <TouchableOpacity onPress={() => handleActiveProject(false)}>
-              <Text className="text-red-500 font-medium">Deactivate</Text>
+            <TouchableOpacity className="bg-red-500 p-2 rounded-lg" onPress={() => handleActiveProject(false)}>
+              <Text className="text-white font-medium">Deactivate</Text>
             </TouchableOpacity>
           </View>
           <Text className="font-extrabold text-[#1f2937] mb-2">
@@ -260,7 +265,7 @@ const SelectProject = () => {
             onPress={() => startSurvey()}
           >
             <Text className="text-white text-base font-bold tracking-wide">
-              Start Live Survey
+              Start Live Inspection
             </Text>
           </TouchableOpacity>
 
@@ -279,6 +284,7 @@ const SelectProject = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-[#f4f8ff] px-4">
+      <Loader loading={loading}>
       <FlatList
         data={projects.slice(0, 4)} // only show max 4 projects
         renderItem={renderItem}
@@ -287,6 +293,7 @@ const SelectProject = () => {
         ListFooterComponent={listFooter}
         showsVerticalScrollIndicator={false}
       />
+      </Loader>
     </SafeAreaView>
   );
 };

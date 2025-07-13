@@ -1,7 +1,9 @@
 // app/dashboard/ViewReport.tsx
 
 import { useApi } from '@/hooks/useApi';
+import { useProject } from '@/hooks/useProject';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useIsFocused } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -12,7 +14,6 @@ import {
   View,
 } from 'react-native';
 import SurveyCard from '../component/SurveyCard';
-import { useProject } from '@/hooks/useProject';
 
 interface InspectionData {
   id: string;
@@ -29,7 +30,7 @@ const ViewReport = () => {
   const [inspections, setInspections] = useState<InspectionData[]>([]);
   const [loading, setLoading] = useState(true);
   const axios=useApi()
-
+  const isFocused = useIsFocused();
   const { project } = useProject();
   // You can replace this with token from secure storage/context
   // const project_id = '7b094a86-7da3-4771-b67f-a42f1c0f8d13';
@@ -37,7 +38,8 @@ const ViewReport = () => {
 
   useEffect(() => {
     const fetchInspections = async () => {
-      console
+      console.log("ViewReport: Fetching inspections for project_id:", project_id);
+      setLoading(true);
       try {
         const response =  await axios.get(
           '/nsv/inspections/prev-inspection-data',
@@ -53,9 +55,13 @@ const ViewReport = () => {
         setLoading(false);
       }
     };
-
-    fetchInspections();
-  }, []);
+    if (isFocused) {
+      fetchInspections();
+    }
+    return () => {
+      setInspections([]); // Clear inspections on unmount
+    }
+  }, [isFocused]);
 
   if (loading) {
     return (

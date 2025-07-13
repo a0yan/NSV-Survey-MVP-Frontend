@@ -20,7 +20,7 @@ type ProjectContextType = {
   loading: boolean;
   setLoading: (loading: boolean) => void;
   surveyStartTime: number | null;
-  setSurveyStartTime: (time: number | null) => void;
+  setSurveyStartTimePersistant: (time: number | null) => void;
   flushProjectContext: () => void;
   // selectProject: (project: Project) => void;
 };
@@ -223,11 +223,19 @@ export const ProjectProvider = ({
         ro: storedRo,
         piu: storedPiu,
         isProjectActive: isActive,
+        surveyStartTime: surveyStartTime
       });
     } catch (error) {
       console.error("Error fetching from AsyncStorage:", error);
     }
   };
+  const setSurveyStartTimePersistant = (time: number | null) => {
+    setSurveyStartTime(time);
+    AsyncStorage.setItem("surveyStartTime", JSON.stringify(time))
+      .then(() => {
+        console.log("Survey start time saved to storage", time);
+      })    
+    }
 
   //TODO: Add Flush Project Functionality
 
@@ -281,7 +289,7 @@ export const ProjectProvider = ({
         isProjectActive,
         activeProject,
         surveyStartTime,
-        setSurveyStartTime,
+        setSurveyStartTimePersistant,
         flushProjectContext
       }}
     >

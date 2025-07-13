@@ -22,7 +22,7 @@ export default {
       "package": "com.NSVSurveyMVPFrontend",
       "config": {
         "googleMaps": {
-          "apiKey": "AIzaSyAM0D9JCiLGTFWkOFHVrjmrz_SJcnOa7vo"
+          "apiKey": process.env.EXPO_PUBLIC_GOOGLE_API_KEY // Use your actual API key here
         }
       }
     },

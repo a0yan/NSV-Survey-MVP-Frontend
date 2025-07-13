@@ -16,7 +16,7 @@ export default function ToggleButton({ onToggle }: ToggleButtonProps) {
   };
 
   return (
-    <View className="flex-row items-center justify-center my-4">
+    <View className="flex-row items-center justify-center my-2">
       <Pressable
         onPress={() => handleToggle(true)}
         className={`px-6 py-2 rounded-l-full ${
