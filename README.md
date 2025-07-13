@@ -1,50 +1,89 @@
-# Welcome to your Expo app 👋
+# 🛣️ NSV Highway Inspection App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A mobile-first field survey application for **highway inspection and reporting**, built with **React Native** using **Expo Go**. Designed for use by surveyors, engineers, and supervisors real-time field conditions.
 
-## Get started
+---
 
-1. Install dependencies
+## 📱 Features
 
-   ```bash
-   npm install
-   ```
+- 📍 **GPS-based chainage detection**
+- 🗺️ **Interactive map with real-time location**
+- 📷 **Live Inspection video capture**
+- 🧰 **Role-based access (Surveyor, Engineer, Supervisor)**
+- 📤 **API-integrated report submission**
 
-2. Start the app
+---
 
-   ```bash
-   npx expo start
-   ```
+## 🚀 Getting Started
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+### 1. **Install Dependencies**
 
 ```bash
-npm run reset-project
-```
+npm install
+# or
+yarn
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+2. Start the Project
 
-## Learn more
+npx expo start
 
-To learn more about developing your project with Expo, look at the following resources:
+Scan the QR code using the Expo Go app on your mobile device.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+    💡 Make sure your phone and development machine are on the same Wi-Fi network.
 
-## Join the community
+🧪 Development Environment
 
-Join our community of developers creating universal apps.
+    Framework: React Native
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+    Tooling: Expo (Managed workflow)
+
+    UI: NativeWind + Gluestack
+
+    Maps: react-native-maps + Google Maps
+
+    Location: expo-location
+
+    Media Capture: expo-camera, expo-media-library
+
+    Navigation: Expo Router (or React Navigation)
+
+📁 Project Structure
+
+/components         # Reusable UI components
+/screens            # App screens like Login, Dashboard, Survey
+/hooks              # Custom React hooks (e.g., useLocationTracker)
+/assets             # Icons, logos, images
+/app.config.js      # Expo configuration
+
+🔑 Environment Variables
+
+Create a .env file in the root directory:
+
+EXPO_PUBLIC_API_URL=backend_api_url
+EXPO_PUBLIC_APP_ENV=dev
+EXPO_PUBLIC_GOOGLE_API_KEY=your_google_api_key_here
+
+    ✅ Used for maps, reverse geocoding, etc.
+
+📦 Building the App
+Android (APK)
+
+npx expo prebuild --platform android
+cd android
+./gradlew assembleRelease --parallel
+
+cd app/build/outputs/release
+// Move the apk file to your device
+
+🧩 Future Roadmap
+
+Background location tracking
+
+Offline form queue & sync
+
+
+    Supervisor approval workflow
+
+👨‍💻 Developed By
+
+Ayan Shrivastava & Harshal Bharatkar
